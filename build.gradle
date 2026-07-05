@@ -140,18 +140,6 @@ repositories {
         name "KosmX's maven"
         url 'https://maven.kosmx.dev/'
     }
-    maven {
-        name = "holys_animation_api"
-        url = "http://localhost:8080/releases"
-        allowInsecureProtocol = true
-    }
-
-    maven {
-        name = "holys_animation_api"
-        url = "http://localhost:8080/snapshots"
-        allowInsecureProtocol = true
-    }
-
 }
 
 dependencies {
