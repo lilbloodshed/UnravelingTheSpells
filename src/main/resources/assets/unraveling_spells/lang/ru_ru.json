@@ -1,0 +1,43 @@
+{
+  "itemGroup.unraveling_spells.material_tab": "ISS: Unraveling Spells",
+
+  "block.unraveling_spells.magic_lectern": "Магическая кафедра",
+
+  "ui.unraveling_spells.school_choose": "Выберите Школы магии для изучения",
+  "ui.unraveling_spells.school_choose2": "Осталось:",
+
+  "ui.unraveling_spells.button.done": "Готово",
+  "ui.unraveling_spells.button.learning": "Изучение",
+  "ui.unraveling_spells.button.creating": "(В разработке)",
+
+  "ui.unraveling_spells.spell.cast_type": "• Тип каста: ",
+  "ui.unraveling_spells.spell.cast_time": "• Время каста: ",
+  "ui.unraveling_spells.spell.mana_cost": "• Стоимость маны: ",
+  "ui.unraveling_spells.spell.cooldown": "• Перезарядка: ",
+  "ui.unraveling_spells.spell.spellPower": "• Сила заклинания: ",
+  "ui.unraveling_spells.spell.level": "ур.",
+
+  "ui.unraveling_spells.spell.conflicts.none": "Заклинание не имеет конфликтов",
+  "ui.unraveling_spells.spell.conflicts.has": "Заклинание конфликтует с ",
+
+  "ui.unraveling_spells.tooltip.cannot_learn": "Недоступно",
+  "ui.unraveling_spells.tooltip.can_learn": "Удерживайте для изучения",
+  "ui.unraveling_spells.tooltip.learned": "Изучено",
+  "ui.unraveling_spells.tooltip.info": "Информация",
+  "ui.unraveling_spells.tooltip.conflicts": "Конфликты",
+
+  "spell.unraveling_spells.cast_type.none": "None",
+  "spell.unraveling_spells.cast_type.instant": "Мгновенный",
+  "spell.unraveling_spells.cast_type.long": "Длинный",
+  "spell.unraveling_spells.cast_type.continuous": "Продолжительный",
+
+  "item.unraveling_spells.spell_scroll": "Свиток заклинаний",
+  "item.unraveling_spells.oblivion_scroll": "Свиток забвения",
+
+  "item.unraveling_spells.spell_scroll.description": "Содержит древние знания",
+  "item.unraveling_spells.spell_scroll.description2": "Даёт возможность изучать заклинания",
+
+  "item.unraveling_spells.oblivion_scroll.description": "При использовании стирает ваши изученные школы и заклинания",
+  "item.unraveling_spells.oblivion_scroll.use": "Вы успешно забыли все ваши знания...",
+  "item.unraveling_spells.oblivion_scroll.confirm": "Вы уверены что хотите стереть ваши изученные школы и заклинания? Для подтверждения используйте свиток с зажатой кнопкой SHIFT!"
+}

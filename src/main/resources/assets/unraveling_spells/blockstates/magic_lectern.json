@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "unraveling_spells:block/magic_lectern",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "unraveling_spells:block/magic_lectern"
+    },
+    "facing=south": {
+      "model": "unraveling_spells:block/magic_lectern",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "unraveling_spells:block/magic_lectern",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "spell.learn": {
+    "sounds": [
+      "unraveling_spells:spell_learn"
+    ]
+  },
+  "spell.fill": {
+    "sounds": [
+      "unraveling_spells:spell_fill"
+    ]
+  }
+}

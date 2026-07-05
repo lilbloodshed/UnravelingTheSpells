@@ -1,0 +1,44 @@
+{
+  "itemGroup.unraveling_spells.material_tab": "ISS: Unraveling Spells",
+
+  "block.unraveling_spells.magic_lectern": "Magic lectern",
+
+  "ui.unraveling_spells.school_choose": "Choose Magic Schools to study",
+  "ui.unraveling_spells.school_choose2": "Left to study:",
+
+  "ui.unraveling_spells.button.done": "Done",
+  "ui.unraveling_spells.button.learning": "Learning",
+  "ui.unraveling_spells.button.creating": "WIP",
+
+  "ui.unraveling_spells.spell.cast_type": "• Cast type: ",
+  "ui.unraveling_spells.spell.cast_time": "• Cast time: ",
+  "ui.unraveling_spells.spell.mana_cost": "• Mana cost: ",
+  "ui.unraveling_spells.spell.cooldown": "• Spell Cooldown: ",
+  "ui.unraveling_spells.spell.spellPower": "• Base power: ",
+  "ui.unraveling_spells.spell.level": "lvl",
+
+  "ui.unraveling_spells.spell.conflicts.none": "The spell has no conflicts",
+  "ui.unraveling_spells.spell.conflicts.has": "The spell has conflicts with ",
+
+  "ui.unraveling_spells.tooltip.cannot_learn": "Blocked",
+  "ui.unraveling_spells.tooltip.can_learn": "Hold it for Learning",
+  "ui.unraveling_spells.tooltip.learned": "Learned",
+  "ui.unraveling_spells.tooltip.info": "Information",
+  "ui.unraveling_spells.tooltip.conflicts": "Conflicts",
+
+  "spell.unraveling_spells.not_learned": "Unknown spell",
+  "spell.unraveling_spells.cast_type.none": "None",
+  "spell.unraveling_spells.cast_type.instant": "Instant",
+  "spell.unraveling_spells.cast_type.long": "Long",
+  "spell.unraveling_spells.cast_type.continuous": "Continuous",
+
+  "item.unraveling_spells.spell_scroll": "Spell Scroll",
+  "item.unraveling_spells.oblivion_scroll": "Scroll of Oblivion",
+
+  "item.unraveling_spells.spell_scroll.description": "It contains ancient knowledge",
+  "item.unraveling_spells.spell_scroll.description2": "Gives you the opportunity to learn spells",
+
+  "item.unraveling_spells.oblivion_scroll.description": "Erases your learned schools and spells when used",
+  "item.unraveling_spells.oblivion_scroll.use": "You have successfully forgotten all your knowledge...",
+  "item.unraveling_spells.oblivion_scroll.confirm": "Are you sure you want to erase your learned schools and spells? Use the scroll with the SHIFT key pressed to confirm!"
+}
