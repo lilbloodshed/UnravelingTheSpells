@@ -56,4 +56,4 @@ body:
       label: Logs
       description: | 
         Please provide the client or server logs from your launcher. They contain vital information to troubleshoot the issue.
-        To upload logs, you can use websites such as: https://pastebin.com/ https://paste.ee/ https://mclo.gs/
+        To upload logs, you can use website such as: https://mclo.gs/
