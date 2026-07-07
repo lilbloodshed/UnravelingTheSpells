@@ -1,2 +1,14 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+build/
+.grandle/
+.idea/
+
+*.log
+
+run/
+run-data/
+runs/
+
+!gradle-wrapper.jar

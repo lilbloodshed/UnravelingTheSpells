@@ -34,6 +34,9 @@ public class OblivionScrollItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (level.isClientSide()) {
+            return InteractionResultHolder.pass(stack);
+        }
 
         if (player.isShiftKeyDown()) {
             boolean succesfulClear = false;

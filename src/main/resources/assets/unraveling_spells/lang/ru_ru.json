@@ -22,6 +22,7 @@
 
   "ui.unraveling_spells.tooltip.cannot_learn": "Недоступно",
   "ui.unraveling_spells.tooltip.can_learn": "Удерживайте для изучения",
+  "ui.unraveling_spells.tooltip.can_learnFast": "ЛКМ для изучения",
   "ui.unraveling_spells.tooltip.learned": "Изучено",
   "ui.unraveling_spells.tooltip.info": "Информация",
   "ui.unraveling_spells.tooltip.conflicts": "Конфликты",

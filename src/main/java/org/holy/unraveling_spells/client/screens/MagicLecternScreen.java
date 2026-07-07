@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.holy.holys_animation_api.api.AnimLib;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternMenu;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternTile;
 import org.holy.unraveling_spells.client.buttons.magic_screen.DefaultButton;
@@ -70,10 +71,30 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         };
         addRenderableWidget(LearningButton);
         addRenderableWidget(ScrollsButton);
+
+        LearningButton.setX(left + 20);
+        ScrollsButton.setX(left + 160);
+
+        AnimLib.animate(this)
+                .from(left + 20)
+                .to(left + 40)
+                .duration(0.35f)
+                .easeOut()
+                .bind(x -> LearningButton.setX(Math.round(x)))
+                .start();
+
+        AnimLib.animate(this)
+                .from(left + 160)
+                .to(left + 140)
+                .duration(0.35f)
+                .easeOut()
+                .bind(x -> ScrollsButton.setX(Math.round(x)))
+                .start();
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int p_283661_, int p_281248_, float p_281886_) {
+        AnimLib.update(this);
         super.render(guiGraphics, p_283661_, p_281248_, p_281886_);
 
         guiGraphics.blit(MAIN_INV, left-79, top-4, 0, 0, 74, 168);
@@ -84,5 +105,11 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
         this.renderBackground(guiGraphics);
         guiGraphics.blit(LearningScreen.MAIN, left, top, 0, 0, 256, 160);
+    }
+
+    @Override
+    public void removed() {
+        AnimLib.clear(this);
+        super.removed();
     }
 }

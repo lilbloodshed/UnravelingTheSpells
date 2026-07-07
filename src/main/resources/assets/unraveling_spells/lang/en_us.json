@@ -21,7 +21,8 @@
   "ui.unraveling_spells.spell.conflicts.has": "The spell has conflicts with ",
 
   "ui.unraveling_spells.tooltip.cannot_learn": "Blocked",
-  "ui.unraveling_spells.tooltip.can_learn": "Hold it for Learning",
+  "ui.unraveling_spells.tooltip.can_learn": "Hold for learning",
+  "ui.unraveling_spells.tooltip.can_learnFast": "LMB for learning",
   "ui.unraveling_spells.tooltip.learned": "Learned",
   "ui.unraveling_spells.tooltip.info": "Information",
   "ui.unraveling_spells.tooltip.conflicts": "Conflicts",

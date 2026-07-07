@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 94
+        },
+        {
+          "type": "minecraft:item",
+          "name": "unraveling_spells:spell_scroll",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "unraveling_spells:oblivion_scroll",
+          "weight": 1
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}

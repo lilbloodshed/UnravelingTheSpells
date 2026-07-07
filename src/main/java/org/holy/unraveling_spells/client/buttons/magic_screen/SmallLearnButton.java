@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.holy.unraveling_spells.client.screens.LearningScreen;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +14,7 @@ public class SmallLearnButton extends Button{
     boolean isBlocked;
     boolean isLearned;
     private Component tooltip;
+    private final Component quickLearnTooltip;
     Font font;
 
     public SmallLearnButton(int x, int y, Font font, boolean isBlocked, boolean isLearned) {
@@ -22,6 +24,8 @@ public class SmallLearnButton extends Button{
         this.isBlocked = isBlocked;
         this.font = font;
         this.isLearned = isLearned;
+        this.quickLearnTooltip = Component.translatable("ui.unraveling_spells.tooltip.can_learnFast")
+                .withStyle(ChatFormatting.GREEN);
 
         updateTooltip();
     }
@@ -32,7 +36,7 @@ public class SmallLearnButton extends Button{
 
         if (isMouseOn && !isBlocked && !isLearned) {
             guiGraphics.blit(LearningScreen.ICONS, getX(), getY(), 0, 16, 14, 14);
-            guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);
+            guiGraphics.renderTooltip(font, Screen.hasShiftDown() ? quickLearnTooltip : tooltip, mouseX, mouseY);
         } else if (isBlocked && !isLearned) {
             guiGraphics.blit(LearningScreen.ICONS, getX(), getY(), 16, 0, 14, 14);
             if (isMouseOn) guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);

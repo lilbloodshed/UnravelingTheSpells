@@ -8,6 +8,7 @@
     import net.minecraft.client.gui.Font;
     import net.minecraft.client.gui.GuiGraphics;
     import net.minecraft.client.gui.components.events.GuiEventListener;
+    import net.minecraft.client.gui.screens.Screen;
     import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
     import net.minecraft.client.player.LocalPlayer;
     import net.minecraft.network.chat.Component;
@@ -15,6 +16,7 @@
     import net.minecraft.resources.ResourceLocation;
     import net.minecraft.world.entity.player.Inventory;
     import net.minecraft.world.item.ItemStack;
+    import org.holy.holys_animation_api.api.AnimLib;
     import org.holy.unraveling_spells.Configuration;
     import org.holy.unraveling_spells.Unraveling_spells;
     import org.holy.unraveling_spells.block.magic_lectern.MagicLecternMenu;
@@ -49,6 +51,10 @@
         private int left, top, page = 0;
 
         private boolean isSyncingSchool, isSyncingSpell, isSyncing, isInitialized = false;
+        private boolean isRenderingWidgets = false;
+        private boolean pendingSpellUiUpdate = false;
+        private boolean pendingLearningSpellListUpdate = false;
+        private boolean pendingLearnSchoolListUpdate = false;
 
         private MagicLecternTile blockEntity;
 
@@ -133,150 +139,179 @@
 
         @Override
         public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float ticks) {
-            try {
-                this.renderBackground(guiGraphics);
+            AnimLib.update(this);
+            this.renderBackground(guiGraphics);
 
-                guiGraphics.blit(MAIN, left, top, 0, 0, 256, 160);
+            guiGraphics.blit(MAIN, left, top, 0, 0, 256, 160);
 
-                //inv and hotbar
-                guiGraphics.blit(MAIN_INV, left-79, top-4, 0, 0, 74, 168);
-                guiGraphics.blit(MAIN_INV, left + (256 - 192) / 2, top+165, 0, 192, 192, 26);
+            //inv and hotbar
+            guiGraphics.blit(MAIN_INV, left-79, top-4, 0, 0, 74, 168);
+            guiGraphics.blit(MAIN_INV, left + (256 - 192) / 2, top+165, 0, 192, 192, 26);
 
-                if (isSyncing) {
-                    guiGraphics.drawString(font, "Synchronization",
-                            left + (256 - font.width("Synchronization")) / 2,
-                            top + 15, FONT_COLOR, true);
+            if (isSyncing) {
+                guiGraphics.drawString(font, "Synchronization",
+                        left + (256 - font.width("Synchronization")) / 2,
+                        top + 15, FONT_COLOR, true);
+            }
+
+            /*
+             * page 1 - choosing a magic school
+             * page 2 - spells learning
+             */
+            if (page == 1) {
+                Component canLearn = Component.translatable("ui.unraveling_spells.school_choose");
+                guiGraphics.drawString(font, canLearn,
+                        left + (256 - font.width(canLearn)) / 2,
+                        top + 20, FONT_COLOR, true);
+
+                Component hasLearn = Component.translatable("ui.unraveling_spells.school_choose2")
+                        .append(" " + (maxSchools - selectedSchools.size()));
+                guiGraphics.drawString(font, hasLearn,
+                        left + (256 - font.width(hasLearn)) / 2,
+                        top + 34, FONT_COLOR, true);
+            }
+            else if (page == 2) {
+                guiGraphics.fill(left + ((SPELLS_COLS == 2) ? 76 : 50), top + 20,
+                        left+ ((SPELLS_COLS == 2) ? 77 : 51), top+130, 0xff6c5d43);
+                guiGraphics.blit(MAIN_INV, left+55, top+139, 0, 240, 16, 16);
+
+                if (currentSchool != null) {
+                    String schoolTitle = currentSchool.getDisplayName().getString();
+                    guiGraphics.drawString(
+                            font,
+                            schoolTitle,
+                            left + (256 - font.width(schoolTitle)) / 2,
+                            top + 143,
+                            FONT_COLOR
+                    );
                 }
 
-                /*
-                 * page 1 - choosing a magic school
-                 * page 2 - spells learning
-                 */
-                if (page == 1) {
-                    Component canLearn = Component.translatable("ui.unraveling_spells.school_choose");
-                    guiGraphics.drawString(font, canLearn,
-                            left + (256 - font.width(canLearn)) / 2,
-                            top + 35, FONT_COLOR, true);
+                if (currentSpell != null) {
+                    Component spellTitle = currentSpell.getDisplayName(getMinecraft().player);
+                    Component spellSchool = currentSpell.getSchoolType().getDisplayName();
 
-                    Component hasLearn = Component.translatable("ui.unraveling_spells.school_choose2")
-                            .append(" " + (maxSchools - selectedSchools.size()));
-                    guiGraphics.drawString(font, hasLearn,
-                            left + (256 - font.width(hasLearn)) / 2,
-                            top + 45, FONT_COLOR, true);
-                }
-                else if (page == 2) {
-                    guiGraphics.fill(left + ((SPELLS_COLS == 2) ? 76 : 50), top + 20,
-                            left+ ((SPELLS_COLS == 2) ? 77 : 51), top+130, 0xff6c5d43);
-                    guiGraphics.blit(MAIN_INV, left+55, top+139, 0, 240, 16, 16);
+                    // temporary stub if the name doesn't fit
+                    List<Component> wrappedSpell = wrapTextToLines(spellTitle.getString(), font, (SPELLS_COLS == 2) ? 120 : 150, Style.EMPTY); // max width 120 p.
+                    titleY = top + 30;
 
-                    if (currentSchool != null) {
-                        String schoolTitle = currentSchool.getDisplayName().getString();
+                    for (Component line : wrappedSpell) {
                         guiGraphics.drawString(
                                 font,
-                                schoolTitle,
-                                left + (256 - font.width(schoolTitle)) / 2,
-                                top + 143,
+                                line,
+                                (left + (256 - font.width(line)) / 2) + ((SPELLS_COLS == 2) ? 60 : 40),
+                                titleY,
                                 FONT_COLOR
                         );
+                        titleY += font.lineHeight + 2;
                     }
 
-                    if (currentSpell != null) {
-                        Component spellTitle = currentSpell.getDisplayName(getMinecraft().player);
-                        Component spellSchool = currentSpell.getSchoolType().getDisplayName();
-
-                        // temporary stub if the name doesn't fit
-                        List<Component> wrappedSpell = wrapTextToLines(spellTitle.getString(), font, (SPELLS_COLS == 2) ? 120 : 150, Style.EMPTY); // max width 120 p.
-                        titleY = top + 30;
-
-                        for (Component line : wrappedSpell) {
-                            guiGraphics.drawString(
-                                    font,
-                                    line,
-                                    (left + (256 - font.width(line)) / 2) + ((SPELLS_COLS == 2) ? 60 : 40),
-                                    titleY,
-                                    FONT_COLOR
-                            );
-                            titleY += font.lineHeight + 2;
-                        }
-
-                        List<Component> wrappedSchoolSpell = wrapTextToLines(spellSchool.getString(), font, (SPELLS_COLS == 2) ? 120 : 150);
-                        for (Component line : wrappedSchoolSpell) {
-                            guiGraphics.drawString(
-                                    font,
-                                    spellSchool,
-                                    (left + (256 - font.width(line)) / 2) + ((SPELLS_COLS == 2) ? 60 : 40),
-                                    titleY,
-                                    FONT_COLOR,
-                                    false
-                            );
-                            titleY += font.lineHeight + 2;
-                        }
-
+                    List<Component> wrappedSchoolSpell = wrapTextToLines(spellSchool.getString(), font, (SPELLS_COLS == 2) ? 120 : 150);
+                    for (Component line : wrappedSchoolSpell) {
                         guiGraphics.drawString(
                                 font,
-                                Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl,
-                                (left + (256 - font.width(Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl)) / 2)
-                                        + ((SPELLS_COLS == 2) ? 60 : 40),
-                                currentSpellLvlY,
+                                spellSchool,
+                                (left + (256 - font.width(line)) / 2) + ((SPELLS_COLS == 2) ? 60 : 40),
+                                titleY,
                                 FONT_COLOR,
                                 false
                         );
+                        titleY += font.lineHeight + 2;
+                    }
 
-                        if (isButtonPressed) {
-                            long currentTime = System.currentTimeMillis();
-                            long pressDuration = currentTime - pressStartTime;
+                    guiGraphics.drawString(
+                            font,
+                            Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl,
+                            (left + (256 - font.width(Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl)) / 2)
+                                    + ((SPELLS_COLS == 2) ? 60 : 40),
+                            currentSpellLvlY,
+                            FONT_COLOR,
+                            false
+                    );
 
-                            if (pressDuration < (long) FILL_DURATION) {
-                                int scale = (int) (pressDuration / 1000L);
+                    if (isButtonPressed) {
+                        long currentTime = System.currentTimeMillis();
+                        long pressDuration = currentTime - pressStartTime;
 
-                                if (scale < TOTAL_SCALES && scale != currentScale) {
-                                    currentScale = scale;
-                                    fillProgress = (float) (currentScale + 1) / TOTAL_SCALES; // 1/3, 2/3, 3/3
+                        if (pressDuration < (long) FILL_DURATION) {
+                            int scale = (int) (pressDuration / 1000L);
 
-                                    playFillingSound(fillProgress);
-                                    lastSoundTime = currentTime;
-                                }
-                            } else if (!finalSoundPlayed) {
-                                playFinalSound();
-                                finalSoundPlayed = true;
+                            if (scale < TOTAL_SCALES && scale != currentScale) {
+                                currentScale = scale;
+                                fillProgress = (float) (currentScale + 1) / TOTAL_SCALES; // 1/3, 2/3, 3/3
 
-                                learnSpell();
-                                resetProgress();
-                                spellLearned = true;
+                                playFillingSound(fillProgress);
+                                lastSoundTime = currentTime;
                             }
-                        }
+                        } else if (!finalSoundPlayed) {
+                            playFinalSound();
+                            finalSoundPlayed = true;
 
-                        // spell's icon
-                        guiGraphics.blit(currentSpell.getSpellIconResource(),
-                                left + ((SPELLS_COLS == 2) ? 90 : 60),
-                                top + 24, 0, 0, 32, 32, 32, 32);
-                        guiGraphics.blit(ResourceLocation.fromNamespaceAndPath(Unraveling_spells.MODID, "textures/gui/icons/border.png"),
-                                left + ((SPELLS_COLS == 2) ? 90 : 60) - 3,
-                                top + 24 - 3, 0, 0, 38, 38, 38, 38);
-
-                        if (isButtonPressed && fillProgress > 0f) {
-                            renderFillAnimation(guiGraphics, mouseX, mouseY);
-                        }
-
-                        switch (currentSpellSmallInfo) {
-                            case 0:
-                                renderCurrentSpellInfo(guiGraphics, mouseX, mouseY);
-                                break;
-                            case 1:
-                                renderCurrentSpellConflicts(guiGraphics, mouseX, mouseY);
-                                break;
+                            learnSpell();
+                            resetProgress();
+                            spellLearned = true;
                         }
                     }
 
-                    String pageInfo = String.format("%d/%d", currentSpellPage + 1, totalSpellPages);
-                    guiGraphics.drawString(font, pageInfo,
-                            left + (11*SPELLS_COLS), top + 132, 0xD9CAD5, true);
+                    // spell's icon
+                    guiGraphics.blit(currentSpell.getSpellIconResource(),
+                            left + ((SPELLS_COLS == 2) ? 90 : 60),
+                            top + 24, 0, 0, 32, 32, 32, 32);
+                    guiGraphics.blit(ResourceLocation.fromNamespaceAndPath(Unraveling_spells.MODID, "textures/gui/icons/border.png"),
+                            left + ((SPELLS_COLS == 2) ? 90 : 60) - 3,
+                            top + 24 - 3, 0, 0, 38, 38, 38, 38);
+
+                    if (isButtonPressed && fillProgress > 0f) {
+                        renderFillAnimation(guiGraphics, mouseX, mouseY);
+                    }
+
+                    switch (currentSpellSmallInfo) {
+                        case 0:
+                            renderCurrentSpellInfo(guiGraphics, mouseX, mouseY);
+                            break;
+                        case 1:
+                            renderCurrentSpellConflicts(guiGraphics, mouseX, mouseY);
+                            break;
+                    }
                 }
 
+                String pageInfo = String.format("%d/%d", currentSpellPage + 1, totalSpellPages);
+                guiGraphics.drawString(font, pageInfo,
+                        left + (11*SPELLS_COLS), top + 132, 0xD9CAD5, true);
+            }
+
+            removeNullRenderables();
+            isRenderingWidgets = true;
+            try {
                 super.render(guiGraphics, mouseX, mouseY, ticks);
-            } catch (ConcurrentModificationException e) {
-                Unraveling_spells.LOGGER.warn("Concurrent modification during render, skipping frame", e);
-                if (currentSpell != null) updateSpellUI();
+            } finally {
+                isRenderingWidgets = false;
+            }
+            runPendingWidgetUpdates();
+        }
+
+        private void removeNullRenderables() {
+            this.renderables.removeIf(Objects::isNull);
+        }
+
+        private void runPendingWidgetUpdates() {
+            if (pendingLearningSpellListUpdate) {
+                pendingLearningSpellListUpdate = false;
+                pendingLearnSchoolListUpdate = false;
+                pendingSpellUiUpdate = false;
+                openLearningSpellList();
+                return;
+            }
+
+            if (pendingLearnSchoolListUpdate) {
+                pendingLearnSchoolListUpdate = false;
+                pendingSpellUiUpdate = false;
+                openLearnSchoolList();
+                return;
+            }
+
+            if (pendingSpellUiUpdate) {
+                pendingSpellUiUpdate = false;
+                updateSpellUI();
             }
         }
 
@@ -291,15 +326,18 @@
         }
 
         private void learnSpell() {
+            if (currentSpell == null || isLearnButtonBlocked || learnedSpells.contains(currentSpell.getSpellResource())) {
+                return;
+            }
+
             if (!isLearnButtonBlocked || learnedSpells.contains(currentSpell.getSpellResource())) {
-                if (blockEntity.getStackInSlot(0).getCount() > 0) {
+                if (getMenu().getTableSlotItem().getCount() > 0) {
                     learnedSpells.add(currentSpell.getSpellResource());
                     List<ResourceLocation> selectedSpellsList = new ArrayList<>(learnedSpells);
 
                     ModMessages.sendToServer(new SpellC2SPacket(selectedSpellsList));
                     ModMessages.sendToServer(new RequestSyncPacket());
 
-                    // Обновление локального состояния
                     getMenu().tableSlotChange();
                     updateSpellUI();
                 }
@@ -571,6 +609,11 @@
 
         // page 2 rendering
         private void openLearningSpellList() {
+            if (isRenderingWidgets) {
+                pendingLearningSpellListUpdate = true;
+                return;
+            }
+
             removeAllWidgets(); // clean the widgets
 
             List<ResourceLocation> selectedList = new ArrayList<>(selectedSchools);
@@ -728,82 +771,93 @@
                         hasPlayerItemForLearn();
                     }
                 };
-                if (currentSpell != null) {
-                    SmallLearnButton learnSkillButton = new SmallLearnButton(left + ((SPELLS_COLS == 2) ? 87 : 57), top + 60, font, isLearnButtonBlocked, learnedSpells.contains(currentSpell.getSpellResource())) {
-                        @Override
-                        public void onPress() {
-                            if (!isLearnButtonBlocked || isLearned) {
-                                if (blockEntity.getStackInSlot(0).getCount() > 0) {
-                                    isButtonPressed = true;
-                                    pressStartTime = System.currentTimeMillis();
-                                    fillProgress = 0f;
-                                    currentScale = 0;
-                                    spellLearned = false;
-                                    finalSoundPlayed = false;
-                                    lastSoundTime = 0L;
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onRelease(double p_93669_, double p_93670_) {
-                            resetProgress();
-                        }
-                    };
-                    SmallInfoButton infoButton = new SmallInfoButton(left + ((SPELLS_COLS == 2) ? 102 : 72), top + 60, font, (currentSpellSmallInfo == 0)) {
-                        @Override
-                        public void onPress() {
-                            currentSpellSmallInfo = 0;
-                            updateSpellUI();
-                        }
-                    };
-                    SmallConflictsButton conflictsButton = new SmallConflictsButton(left + ((SPELLS_COLS == 2) ? 117 : 87), top + 60, font, (currentSpellSmallInfo == 1)) {
-                        @Override
-                        public void onPress() {
-                            currentSpellSmallInfo = 1;
-                            updateSpellUI();
-                        }
-                    };
-                    LeftLevelButton leftLevelButton = new LeftLevelButton((left + (256 - font.width(Component.translatable("ui.unraveling_spells.spell.level").getString()
-                                    + " " + currentSpellLvl)) / 2) + ((SPELLS_COLS == 2) ?
-                                    60 - 20 :
-                                    40 - 20),
-                                    currentSpellLvlY) {
-                        @Override
-                        public void onPress() {
-                            currentSpellLvl = (currentSpellLvl <= 1 ? 1 : currentSpellLvl-1);
-                            updateSpellUI();
-                        }
-                    };
-
-                    RightLevelButton rightLevelButton = new RightLevelButton((left + (256 - font.width(Component.translatable("ui.unraveling_spells.spell.level").getString()
-                                    + " " + currentSpellLvl)) / 2) + ((SPELLS_COLS == 2) ?
-                                    60 + (font.width(Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl)) + 15 :
-                                    40 + (font.width(Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl)) + 15),
-                                    currentSpellLvlY) {
-                        @Override
-                        public void onPress() {
-                            currentSpellLvl = (currentSpellLvl >= currentSpell.getMaxLevel() ? currentSpell.getMaxLevel() : currentSpellLvl+1);
-                            updateSpellUI();
-                        }
-                    };
-
-                    addRenderableWidget(leftLevelButton);
-                    addRenderableWidget(rightLevelButton);
-                    addRenderableWidget(learnSkillButton);
-                    addRenderableWidget(infoButton);
-                    addRenderableWidget(conflictsButton);
-                }
                 addRenderableWidget(spellButton);
 
                 x += ICON_SIZE + PADDING;
                 col++;
             }
+
+            if (currentSpell != null) {
+                SmallLearnButton learnSkillButton = new SmallLearnButton(left + ((SPELLS_COLS == 2) ? 87 : 57), top + 60, font, isLearnButtonBlocked, learnedSpells.contains(currentSpell.getSpellResource())) {
+                    @Override
+                    public void onPress() {
+                        boolean currentSpellLearned = currentSpell != null && learnedSpells.contains(currentSpell.getSpellResource());
+
+                        if (!isLearnButtonBlocked && !currentSpellLearned) {
+                            if (getMenu().getTableSlotItem().getCount() > 0) {
+                                if (Screen.hasShiftDown()) {
+                                    resetProgress();
+                                    learnSpell();
+                                    playFinalSound();
+                                    spellLearned = true;
+                                    return;
+                                }
+
+                                isButtonPressed = true;
+                                pressStartTime = System.currentTimeMillis();
+                                fillProgress = 0f;
+                                currentScale = 0;
+                                spellLearned = false;
+                                finalSoundPlayed = false;
+                                lastSoundTime = 0L;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onRelease(double p_93669_, double p_93670_) {
+                        resetProgress();
+                    }
+                };
+                SmallInfoButton infoButton = new SmallInfoButton(left + ((SPELLS_COLS == 2) ? 102 : 72), top + 60, font, (currentSpellSmallInfo == 0)) {
+                    @Override
+                    public void onPress() {
+                        currentSpellSmallInfo = 0;
+                        updateSpellUI();
+                    }
+                };
+                SmallConflictsButton conflictsButton = new SmallConflictsButton(left + ((SPELLS_COLS == 2) ? 117 : 87), top + 60, font, (currentSpellSmallInfo == 1)) {
+                    @Override
+                    public void onPress() {
+                        currentSpellSmallInfo = 1;
+                        updateSpellUI();
+                    }
+                };
+                LeftLevelButton leftLevelButton = new LeftLevelButton((left + (256 - font.width(Component.translatable("ui.unraveling_spells.spell.level").getString()
+                                + " " + currentSpellLvl)) / 2) + ((SPELLS_COLS == 2) ?
+                                60 - 20 :
+                                40 - 20),
+                                currentSpellLvlY) {
+                    @Override
+                    public void onPress() {
+                        currentSpellLvl = (currentSpellLvl <= 1 ? 1 : currentSpellLvl-1);
+                        updateSpellUI();
+                    }
+                };
+
+                RightLevelButton rightLevelButton = new RightLevelButton((left + (256 - font.width(Component.translatable("ui.unraveling_spells.spell.level").getString()
+                                + " " + currentSpellLvl)) / 2) + ((SPELLS_COLS == 2) ?
+                                60 + (font.width(Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl)) + 15 :
+                                40 + (font.width(Component.translatable("ui.unraveling_spells.spell.level").getString() + " " + currentSpellLvl)) + 15),
+                                currentSpellLvlY) {
+                    @Override
+                    public void onPress() {
+                        currentSpellLvl = (currentSpellLvl >= currentSpell.getMaxLevel() ? currentSpell.getMaxLevel() : currentSpellLvl+1);
+                        updateSpellUI();
+                    }
+                };
+
+                addRenderableWidget(leftLevelButton);
+                addRenderableWidget(rightLevelButton);
+                addRenderableWidget(learnSkillButton);
+                addRenderableWidget(infoButton);
+                addRenderableWidget(conflictsButton);
+            }
         }
 
         public void hasPlayerItemForLearn() {
             this.isLearnButtonBlocked = true;
-            ItemStack stackInSlot = blockEntity.getStackInSlot(0);
+            ItemStack stackInSlot = getMenu().getTableSlotItem();
 
             if (currentSpell != null) {
                 boolean isConflicting = SpellConflictManager.hasConflict(currentSpell.getSpellResource(),
@@ -819,6 +873,11 @@
 
         // page 1 rendering
         private void openLearnSchoolList() {
+            if (isRenderingWidgets) {
+                pendingLearnSchoolListUpdate = true;
+                return;
+            }
+
             removeAllWidgets();
 
             for (int i = 0; i < VISIBLE_COUNT; i++) {
@@ -828,9 +887,11 @@
                 SchoolType school = schoolTypes.get(schoolIndex);
                 if (school == null) return;
 
-                SchoolButton button = new SchoolButton(left + (i * 66) + 30, top + 80, school) {
+                SchoolButton button = new SchoolButton(left + (i * (64+4)) + 28,
+                        top + 55 - (selectedSchools.contains(school.getId()) ? 5 : 0), school) {
                     @Override
                     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float tics) {
+                        /* 1.0.1 VERSION CODE
                         if (selectedSchools.contains(school.getId())) guiGraphics.blit(MAIN, getX(), getY(), 64, 208, 64, 48);
                         else guiGraphics.blit(MAIN, getX(), getY(), 64, 160, 64, 48);
 
@@ -838,13 +899,33 @@
                         guiGraphics.drawString(font, displayText, getX() + (64 - font.width(school.getDisplayName())) / 2, getY()+10, 0xD9CAD5, false);
 
                         // school's icon
-                        AbstractSpell spellIcon = SpellRegistry.getSpellsForSchool(school).get(1);
-                        guiGraphics.blit(
-                                spellIcon.getSpellIconResource(),
-                                getX() + 24, getY() + 25, 0, 0, 16, 16, 16, 16
-                        );
+                        List<AbstractSpell> schoolSpells = SpellRegistry.getSpellsForSchool(school);
+                        if (!schoolSpells.isEmpty()) {
+                            AbstractSpell spellIcon = schoolSpells.get(0);
+                            guiGraphics.blit(
+                                    spellIcon.getSpellIconResource(),
+                                    getX() + 24, getY() + 25, 0, 0, 16, 16, 16, 16
+                            );
+                        }
                         if (selectedSchools.contains(school.getId())) guiGraphics.blit(MAIN, getX() + 24 - 3, getY() + 25 - 3, 128, 182, 22, 22);
                         else guiGraphics.blit(MAIN, getX() + 24 - 3, getY() + 25 - 3, 128, 160, 22, 22);
+                         */
+
+                        // 1.1 VERSION CODE
+                        if (selectedSchools.contains(school.getId())) guiGraphics.blit(MAIN, getX(), getY(), 160, 160, 64, 80);
+                        else guiGraphics.blit(MAIN, getX(), getY(), 64, 160, 64, 80);
+
+                        //title
+                        String displayText = school.getDisplayName().getString();
+                        guiGraphics.drawString(font, displayText, getX() + (64 - font.width(school.getDisplayName())) / 2, getY()+12, 0xD9CAD5, true);
+
+                        // school icon
+                        ResourceLocation schoolIcon = ResourceLocation.fromNamespaceAndPath(Unraveling_spells.MODID, String.format("textures/gui/icons/schools/%s_school.png",
+                                school.getDisplayName().getString().toLowerCase()));
+                        if (Minecraft.getInstance().getResourceManager().getResource(schoolIcon).isEmpty()) {
+                            schoolIcon = ResourceLocation.fromNamespaceAndPath(Unraveling_spells.MODID, "textures/gui/icons/schools/null.png");
+                        }
+                        guiGraphics.blit(schoolIcon, getX() + 16, getY() + 30, 0, 0, 32, 37, 32, 37);
                     }
 
                     @Override
@@ -853,20 +934,23 @@
 
                         if (selectedSchools.contains(schoolId)) {
                             selectedSchools.remove(schoolId);
+                            AnimSchoolButtonOn(this);
                         } else {
                             if (selectedSchools.size() < maxSchools) {
                                 selectedSchools.add(schoolId);
+                                AnimSchoolButtonOff(this);
                             }
                         }
 
-                        Minecraft.getInstance().execute(() -> openLearnSchoolList());
+                        //Minecraft.getInstance().execute(() -> openLearnSchoolList());
                     }
                 };
                 addRenderableWidget(button);
             }
 
             if (currentIndex + VISIBLE_COUNT < schoolTypes.size()) {
-                RightListButton nextButton = new RightListButton(left + 225 + 5, top + 95) {
+                RightListButton nextButton = new RightListButton(left + ((256 / 2) + (int) (256*0.4)),
+                        top + 85) {
                     @Override
                     public void onPress() {
                         currentIndex += VISIBLE_COUNT;
@@ -877,7 +961,8 @@
             }
 
             if (currentIndex > 0) {
-                LeftListButton backButton = new LeftListButton(left + 22 - 5, top + 95) {
+                LeftListButton backButton = new LeftListButton(left + ((256 / 2) - (int) (256*0.4) - 9*2),
+                        top + 85) {
                     @Override
                     public void onPress() {
                         currentIndex -= VISIBLE_COUNT;
@@ -888,22 +973,30 @@
                 addRenderableWidget(backButton);
             }
 
-            if (selectedSchools.size() == maxSchools) {
-                DefaultButton confirmButton =
-                        new DefaultButton(left + (256 - 64) / 2, top + 130, getMinecraft().font,
-                                Component.translatable("ui.unraveling_spells.button.done"), MAIN, 0, 192, 64, 16, 256, 256, 0, 208) {
+            DefaultButton confirmButton =
+                    new DefaultButton(left + (256 - 64) / 2, top + 140, getMinecraft().font,
+                            Component.translatable("ui.unraveling_spells.button.done"), MAIN, 0, 192, 64, 16, 256, 256, 0, 208) {
 
-                            @Override
-                            public void onPress() {
+                        @Override
+                        public boolean isActive() {
+                            if (selectedSchools.size() == maxSchools) {
+                                return true;
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public void onPress() {
+                            if (isActive()) {
                                 List<ResourceLocation> selectedSchoolsList = new ArrayList<>(selectedSchools);
                                 ModMessages.sendToServer(new SchoolC2SPacket(selectedSchoolsList));
 
                                 onClose();
                             }
-                        };
+                        }
+                    };
 
-                addRenderableWidget(confirmButton);
-            }
+            addRenderableWidget(confirmButton);
         }
 
         private void removeAllWidgets() {
@@ -949,6 +1042,11 @@
         }
 
         private void updateSpellUI() {
+            if (isRenderingWidgets) {
+                pendingSpellUiUpdate = true;
+                return;
+            }
+
             renderSpells(currentSchool);
         }
 
@@ -992,5 +1090,31 @@
 
         public void SyncSpell() {
             isSyncingSpell = true;
+        }
+
+        private void AnimSchoolButtonOn(SchoolButton button) {
+            AnimLib.animate(this)
+                    .from(button.getY())
+                    .to(button.getY() + 5)
+                    .duration(0.5f)
+                    .easeOut()
+                    .bind(y -> button.setY(Math.round(y)))
+                    .start();
+        }
+
+        private void AnimSchoolButtonOff(SchoolButton button) {
+            AnimLib.animate(this)
+                    .from(button.getY())
+                    .to(button.getY() - 5)
+                    .duration(0.5f)
+                    .easeOut()
+                    .bind(y -> button.setY(Math.round(y)))
+                    .start();
+        }
+
+        @Override
+        public void removed() {
+            AnimLib.clear(this);
+            super.removed();
         }
     }

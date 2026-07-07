@@ -163,7 +163,7 @@ dependencies {
         jarJar.ranged(it, "[0.5.0,)")
     }
 
-    //implementation("org.holy:holys_animation_api:${holys_animation_api_version}")
+    implementation("org.holy:holys_animation_api:${holys_animation_api_version}")
 
     implementation fg.deobf("io.redspace:irons_spellbooks:${irons_spells_version}")
     //compileOnly fg.deobf("io.redspace:irons_spellbooks:${irons_spells_version}:api")
