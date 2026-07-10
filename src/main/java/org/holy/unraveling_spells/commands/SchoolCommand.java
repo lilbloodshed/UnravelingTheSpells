@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.LazyOptional;
-import org.holy.unraveling_spells.Configuration;
+import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.capability.school.PlayerSchool;
 import org.holy.unraveling_spells.capability.school.PlayerSchoolProvider;
 import org.holy.unraveling_spells.network.ModMessages;

@@ -16,7 +16,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.holy.unraveling_spells.client.screens.MagicLecternScreen;
-import org.holy.unraveling_spells.events.ClientEvents;
+import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.network.ModMessages;
 import org.holy.unraveling_spells.registries.BlockRegistry;
 import org.holy.unraveling_spells.registries.CreativeTabRegistry;
@@ -49,7 +49,6 @@ public class Unraveling_spells {
         bus.addListener(this::clientSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(ClientEvents.class);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configuration.getConfig());
     }

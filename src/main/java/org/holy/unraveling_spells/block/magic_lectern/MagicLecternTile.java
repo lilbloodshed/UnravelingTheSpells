@@ -23,7 +23,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import org.holy.unraveling_spells.client.screens.LearningScreen;
+import org.holy.unraveling_spells.client.screens.LearningScreenOld;
 import org.holy.unraveling_spells.registries.BlockRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 public class MagicLecternTile extends BlockEntity implements MenuProvider {
     MagicLecternMenu menu;
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(5) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             updateMenuSlots(slot);
@@ -51,7 +51,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
 
             Screen currentScreen = Minecraft.getInstance().screen;
-            if (currentScreen instanceof LearningScreen branchScreen) {
+            if (currentScreen instanceof LearningScreenOld branchScreen) {
                 branchScreen.hasPlayerItemForLearn();
             }
         }

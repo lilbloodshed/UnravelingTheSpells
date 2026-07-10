@@ -1,7 +1,6 @@
 package org.holy.unraveling_spells.config;
 
 import net.minecraft.resources.ResourceLocation;
-import org.holy.unraveling_spells.Configuration;
 
 import java.util.HashSet;
 import java.util.Set;

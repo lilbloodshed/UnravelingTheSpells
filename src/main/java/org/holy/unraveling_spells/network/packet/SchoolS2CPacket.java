@@ -7,7 +7,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraft.resources.ResourceLocation;
 import org.holy.unraveling_spells.capability.school.PlayerSchoolProvider;
-import org.holy.unraveling_spells.client.screens.LearningScreen;
+import org.holy.unraveling_spells.client.screens.LearningScreenOld;
+import org.holy.unraveling_spells.client.screens.MagicLecternScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +52,14 @@ public class SchoolS2CPacket {
                 // Находим экран и вызываем onSyncComplete
                 Screen currentScreen = Minecraft.getInstance().screen;
 
-                if (currentScreen instanceof LearningScreen branchScreen) {
-                    branchScreen.SyncSchool();
+                if (currentScreen instanceof LearningScreenOld branchScreen) {
+                    branchScreen.SyncSchool(new ArrayList<>(schools));
                     branchScreen.onSyncComplete();
+                }
+
+                if (currentScreen instanceof MagicLecternScreen screen) {
+                    screen.SyncSchools(new ArrayList<>(schools));
+                    screen.onSyncComplete();
                 }
             }
         });

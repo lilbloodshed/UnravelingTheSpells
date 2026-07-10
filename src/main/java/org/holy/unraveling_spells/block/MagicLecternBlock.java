@@ -23,6 +23,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternTile;
+import org.holy.unraveling_spells.registries.ItemRegistry;
 
 import javax.annotation.Nullable;
 
@@ -107,7 +108,6 @@ public class MagicLecternBlock extends BaseEntityBlock {
     public InteractionResult use(BlockState state, Level pLevel, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!pLevel.isClientSide()) {
             BlockEntity entity = pLevel.getBlockEntity(pos);
-
             if (entity instanceof MagicLecternTile) {
                 NetworkHooks.openScreen(((ServerPlayer) player), (MagicLecternTile) entity, pos);
             } else {

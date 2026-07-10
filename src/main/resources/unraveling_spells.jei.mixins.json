@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "package": "org.holy.unraveling_spells.mixin.jei",
+  "refmap": "unraveling_spells.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "IngredientInfoRecipeCategoryMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

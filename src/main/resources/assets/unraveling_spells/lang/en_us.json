@@ -5,8 +5,12 @@
 
   "ui.unraveling_spells.school_choose": "Choose Magic Schools to study",
   "ui.unraveling_spells.school_choose2": "Left to study:",
+  "ui.unraveling_spells.no_spells": "No spells found",
 
   "ui.unraveling_spells.button.done": "Done",
+  "ui.unraveling_spells.button.hold": "Hold for study",
+  "ui.unraveling_spells.button.ok": "OK",
+  "ui.unraveling_spells.button.need": "Left: %d",
   "ui.unraveling_spells.button.learning": "Learning",
   "ui.unraveling_spells.button.creating": "WIP",
 
@@ -41,5 +45,9 @@
 
   "item.unraveling_spells.oblivion_scroll.description": "Erases your learned schools and spells when used",
   "item.unraveling_spells.oblivion_scroll.use": "You have successfully forgotten all your knowledge...",
-  "item.unraveling_spells.oblivion_scroll.confirm": "Are you sure you want to erase your learned schools and spells? Use the scroll with the SHIFT key pressed to confirm!"
+  "item.unraveling_spells.oblivion_scroll.confirm": "Are you sure you want to erase your learned schools and spells? Use the scroll with the SHIFT key pressed to confirm!",
+
+  "jei.unraveling_spells.magic_lectern.description": "The main workstation for learning. Use it to choose magic schools and learn spells with Spell Scrolls",
+  "jei.unraveling_spells.spell_scroll.description": "The ancient knowledge contained in the scroll. Using it in Magic lectern will be able to give you 1 learned spell. It can be found in dungeon chests,as well as purchased from mage traders",
+  "jei.unraveling_spells.oblivion_scroll.description": "It can be found with a rare chance in dungeon chests and at mage merchants. The ability to forget your knowledge of learned schools and spells"
 }

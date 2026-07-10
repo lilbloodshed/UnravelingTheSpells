@@ -1,4 +1,5 @@
 .gradle/
+.gradle-home/
 .idea/
 build/
 run/
@@ -7,3 +8,8 @@ run-data/
 *.class
 *.jar
 out/
+.gitignore
+.gitattributes
+gradlew
+gradlew.bat
+settings.gradle

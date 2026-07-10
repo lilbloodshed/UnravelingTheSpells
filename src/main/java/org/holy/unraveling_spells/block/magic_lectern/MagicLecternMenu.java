@@ -1,7 +1,5 @@
 package org.holy.unraveling_spells.block.magic_lectern;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,7 +14,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import org.holy.unraveling_spells.client.screens.LearningScreen;
 import org.holy.unraveling_spells.network.ModMessages;
 import org.holy.unraveling_spells.network.packet.LearnSpellPacket;
 import org.holy.unraveling_spells.registries.ItemRegistry;
@@ -47,8 +44,8 @@ public class MagicLecternMenu extends AbstractContainerMenu {
         blockEntity = (MagicLecternTile) entity;
         this.level = inv.player.level();
 
-        addPlayerInventory(inv);
-        addPlayerHotbar(inv);
+        //addPlayerInventory(inv);
+        //addPlayerHotbar(inv);
 
         IItemHandler itemHandler = this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve().get();
 
@@ -60,12 +57,14 @@ public class MagicLecternMenu extends AbstractContainerMenu {
 
             @Override
             public boolean isActive() {
+                /*
                 Screen currentScreen = Minecraft.getInstance().screen;
                 if (currentScreen instanceof LearningScreen branchScreen) {
                     if (branchScreen.getPage() == 2) {
                         return true;
                     }
                 }
+                 */
                 return false;
             }
         };

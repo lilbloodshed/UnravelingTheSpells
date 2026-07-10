@@ -7,7 +7,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
 import org.holy.unraveling_spells.capability.spell.PlayerSpellProvider;
-import org.holy.unraveling_spells.client.screens.LearningScreen;
+import org.holy.unraveling_spells.client.screens.LearningScreenOld;
+import org.holy.unraveling_spells.client.screens.MagicLecternScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +51,14 @@ public class SpellS2CPacket {
 
                 // Находим экран и вызываем onSyncComplete
                 Screen currentScreen = Minecraft.getInstance().screen;
-                if (currentScreen instanceof LearningScreen branchScreen) {
-                    branchScreen.SyncSpell();
+                if (currentScreen instanceof LearningScreenOld branchScreen) {
+                    branchScreen.SyncSpell(new ArrayList<>(spells));
                     branchScreen.onSyncComplete();
+                }
+
+                if (currentScreen instanceof MagicLecternScreen screen) {
+                    screen.SyncSpells(new ArrayList<>(spells));
+                    screen.onSyncComplete();
                 }
             }
         });

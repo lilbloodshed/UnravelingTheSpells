@@ -5,8 +5,12 @@
 
   "ui.unraveling_spells.school_choose": "Выберите Школы магии для изучения",
   "ui.unraveling_spells.school_choose2": "Осталось:",
+  "ui.unraveling_spells.no_spells": "Заклинания не найдены",
 
   "ui.unraveling_spells.button.done": "Готово",
+  "ui.unraveling_spells.button.hold": "Удерживайте для изучения",
+  "ui.unraveling_spells.button.ok": "ОК",
+  "ui.unraveling_spells.button.need": "Осталось: %d",
   "ui.unraveling_spells.button.learning": "Изучение",
   "ui.unraveling_spells.button.creating": "(В разработке)",
 
@@ -40,5 +44,9 @@
 
   "item.unraveling_spells.oblivion_scroll.description": "При использовании стирает ваши изученные школы и заклинания",
   "item.unraveling_spells.oblivion_scroll.use": "Вы успешно забыли все ваши знания...",
-  "item.unraveling_spells.oblivion_scroll.confirm": "Вы уверены что хотите стереть ваши изученные школы и заклинания? Для подтверждения используйте свиток с зажатой кнопкой SHIFT!"
+  "item.unraveling_spells.oblivion_scroll.confirm": "Вы уверены что хотите стереть ваши изученные школы и заклинания? Для подтверждения используйте свиток с зажатой кнопкой SHIFT!",
+
+  "jei.unraveling_spells.magic_lectern.description": "Основное рабочее место для обучения. Используйте его, чтобы выбирать магические школы и изучать заклинания с помощью свитков заклинаний",
+  "jei.unraveling_spells.spell_scroll.description": "Древнее знание, содержащееся в свитке. Используя его в Магической кафедре, вы сможете получить 1 изученное заклинание. Его можно найти в сундуках подземелий, а также приобрести у магов-торговцев",
+  "jei.unraveling_spells.oblivion_scroll.description": "С редким шансом его можно найти в сундуках подземелий и у торговцев магами. Возможность забыть свои знания об изученных школах и заклинаниях"
 }
