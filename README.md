@@ -20,3 +20,37 @@ Please report bugs or issues to the [discord addon branch](https://discord.com/c
 
 [MODRINTH](https://modrinth.com/mod/unraveling-the-spells)
 [CURSEFORGE](https://www.curseforge.com/minecraft/mc-mods/iss-unraveling-the-spells)
+
+## Development layout
+
+- `common/` contains loader-independent Java utilities and shared assets.
+- `1.20.1/` contains the complete Forge 1.20.1 implementation.
+- `1.21.1/` contains the NeoForge 1.21.1 Gradle scaffold and its minimal main
+  mod class. Other platform code is intentionally not implemented yet.
+
+Each platform directory is an independent Gradle build with its own wrapper:
+
+```text
+1.20.1/gradlew build
+1.21.1/gradlew build
+```
+
+The root wrapper provides convenience tasks:
+
+```text
+gradlew buildForge
+gradlew buildNeoForge
+gradlew buildAll
+```
+
+Forge 1.20.1 targets Java 17. NeoForge 1.21.1 targets Java 21. Do not place
+Forge, NeoForge or version-specific Minecraft APIs in `common`.
+
+### IntelliJ IDEA
+
+The repository root is only a build launcher. For complete code navigation,
+imports and run configurations, link `1.20.1/build.gradle` as the active
+Gradle project. The shared `common` sources are included by its source set.
+
+Link `1.21.1/build.gradle` as a second Gradle project and use Java 21 for it.
+Both platform builds can remain linked in the same IDEA window.
