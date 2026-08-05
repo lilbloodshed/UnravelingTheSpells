@@ -1,8 +1,17 @@
 package org.holy.unraveling_spells.block;
 
 import com.mojang.serialization.MapCodec;
+import io.redspace.ironsspellbooks.registries.ItemRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -14,7 +23,10 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.BlockHitResult;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternTile;
+import org.holy.unraveling_spells.config.Configuration;
+import org.holy.unraveling_spells.registries.utsItemRegistry;
 
 import javax.annotation.Nullable;
 
@@ -102,22 +114,51 @@ public class MagicLecternBlock extends BaseEntityBlock {
         return p_54537_.rotate(p_54538_.getRotation((Direction)p_54537_.getValue(FACING)));
     }
 
-    /*
     @Override
-    public InteractionResult use(BlockState state, Level pLevel, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        BlockEntity entity = pLevel.getBlockEntity(pos);
-        if (!(entity instanceof MagicLecternTile lectern)) {
-            throw new IllegalStateException("Container provider is missing!");
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
+                                               Player player, BlockHitResult hitResult) {
+        MagicLecternTile lectern = getLectern(level, pos);
+        if (lectern == null) {
+            return InteractionResult.PASS;
         }
 
-        ItemStack heldStack = player.getItemInHand(hand);
-        boolean heldEldritchManuscript =
-                Configuration.isEldritchSchoolLearningEnabled()
-                        && heldStack.is(io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get());
-
-        if (!pLevel.isClientSide()) {
+        if (!level.isClientSide) {
             if (player.isShiftKeyDown()) {
-                if (heldEldritchManuscript
+                if (lectern.getStoredScrollCount() == 0
+                        && lectern.getStoredEldritchManuscriptCount() > 0) {
+                    withdrawEldritchManuscripts(lectern, player, InteractionHand.MAIN_HAND);
+                    showEldritchStorage(player, lectern);
+                } else {
+                    withdrawSpellScrolls(lectern, player, InteractionHand.MAIN_HAND);
+                    showScrollStorage(player, lectern);
+                }
+            } else if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.openMenu(lectern, buffer -> buffer.writeBlockPos(pos));
+            }
+        }
+
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level,
+                                              BlockPos pos, Player player, InteractionHand hand,
+                                              BlockHitResult hitResult) {
+        MagicLecternTile lectern = getLectern(level, pos);
+        if (lectern == null) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        boolean spellScroll = heldStack.is(utsItemRegistry.SPELL_SCROLL.get());
+        boolean eldritchManuscript = Configuration.isEldritchSchoolLearningEnabled()
+                && heldStack.is(ItemRegistry.ELDRITCH_PAGE.get());
+        if (!player.isShiftKeyDown() && !spellScroll && !eldritchManuscript) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        if (!level.isClientSide) {
+            if (player.isShiftKeyDown()) {
+                if (eldritchManuscript
                         || (heldStack.isEmpty()
                         && lectern.getStoredScrollCount() == 0
                         && lectern.getStoredEldritchManuscriptCount() > 0)) {
@@ -127,67 +168,60 @@ public class MagicLecternBlock extends BaseEntityBlock {
                     withdrawSpellScrolls(lectern, player, hand);
                     showScrollStorage(player, lectern);
                 }
-            } else if (heldStack.is(ItemRegistry.SPELL_SCROLL.get())) {
+            } else if (spellScroll) {
                 int inserted = lectern.insertSpellScrolls(heldStack);
                 heldStack.shrink(inserted);
                 showScrollStorage(player, lectern);
-            } else if (heldEldritchManuscript) {
+            } else {
                 int inserted = lectern.insertEldritchManuscripts(heldStack);
                 heldStack.shrink(inserted);
                 showEldritchStorage(player, lectern);
-            } else {
-                NetworkHooks.openScreen((ServerPlayer) player, lectern, pos);
             }
         }
 
-        return InteractionResult.sidedSuccess(pLevel.isClientSide());
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    private static void withdrawSpellScrolls(MagicLecternTile lectern, Player player, InteractionHand hand) {
-        ItemStack heldStack = player.getItemInHand(hand);
+    private static MagicLecternTile getLectern(Level level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof MagicLecternTile lectern ? lectern : null;
+    }
 
+    private static void withdrawSpellScrolls(MagicLecternTile lectern, Player player,
+                                             InteractionHand hand) {
+        ItemStack heldStack = player.getItemInHand(hand);
+        int maxStackSize = new ItemStack(utsItemRegistry.SPELL_SCROLL.get()).getMaxStackSize();
         if (heldStack.isEmpty()) {
-            ItemStack extracted = lectern.extractSpellScrolls(ItemRegistry.SPELL_SCROLL.get().getMaxStackSize());
+            ItemStack extracted = lectern.extractSpellScrolls(maxStackSize);
             if (!extracted.isEmpty()) {
                 player.setItemInHand(hand, extracted);
-                heldStack = extracted;
             }
-        } else if (heldStack.is(ItemRegistry.SPELL_SCROLL.get())) {
+        } else if (heldStack.is(utsItemRegistry.SPELL_SCROLL.get())) {
             int handSpace = Math.max(0, heldStack.getMaxStackSize() - heldStack.getCount());
             ItemStack extracted = lectern.extractSpellScrolls(handSpace);
             heldStack.grow(extracted.getCount());
         }
 
         while (lectern.getStoredScrollCount() > 0) {
-            ItemStack extracted = lectern.extractSpellScrolls(ItemRegistry.SPELL_SCROLL.get().getMaxStackSize());
-            if (extracted.isEmpty()) break;
-
-            player.getInventory().add(extracted);
-            if (!extracted.isEmpty()) {
+            ItemStack extracted = lectern.extractSpellScrolls(maxStackSize);
+            if (extracted.isEmpty()) {
+                break;
+            }
+            if (!player.getInventory().add(extracted)) {
                 lectern.insertSpellScrolls(extracted);
                 break;
             }
         }
     }
 
-    private static void showScrollStorage(Player player, MagicLecternTile lectern) {
-        player.displayClientMessage(Component.translatable(
-                "ui.unraveling_spells.magic_lectern.scroll_storage",
-                lectern.getStoredScrollCount(),
-                MagicLecternTile.MAX_STORED_SCROLLS), true);
-    }
-
-    private static void withdrawEldritchManuscripts(
-            MagicLecternTile lectern, Player player, InteractionHand hand) {
+    private static void withdrawEldritchManuscripts(MagicLecternTile lectern, Player player,
+                                                     InteractionHand hand) {
         ItemStack heldStack = player.getItemInHand(hand);
-        net.minecraft.world.item.Item manuscript =
-                io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get();
-
+        Item manuscript = ItemRegistry.ELDRITCH_PAGE.get();
+        int maxStackSize = new ItemStack(manuscript).getMaxStackSize();
         if (heldStack.isEmpty()) {
-            ItemStack extracted = lectern.extractEldritchManuscripts(manuscript.getMaxStackSize());
+            ItemStack extracted = lectern.extractEldritchManuscripts(maxStackSize);
             if (!extracted.isEmpty()) {
                 player.setItemInHand(hand, extracted);
-                heldStack = extracted;
             }
         } else if (heldStack.is(manuscript)) {
             int handSpace = Math.max(0, heldStack.getMaxStackSize() - heldStack.getCount());
@@ -196,15 +230,21 @@ public class MagicLecternBlock extends BaseEntityBlock {
         }
 
         while (lectern.getStoredEldritchManuscriptCount() > 0) {
-            ItemStack extracted = lectern.extractEldritchManuscripts(manuscript.getMaxStackSize());
-            if (extracted.isEmpty()) break;
-
-            player.getInventory().add(extracted);
-            if (!extracted.isEmpty()) {
+            ItemStack extracted = lectern.extractEldritchManuscripts(maxStackSize);
+            if (extracted.isEmpty()) {
+                break;
+            }
+            if (!player.getInventory().add(extracted)) {
                 lectern.insertEldritchManuscripts(extracted);
                 break;
             }
         }
+    }
+
+    private static void showScrollStorage(Player player, MagicLecternTile lectern) {
+        player.displayClientMessage(Component.translatable(
+                "ui.unraveling_spells.magic_lectern.scroll_storage",
+                lectern.getStoredScrollCount(), MagicLecternTile.MAX_STORED_SCROLLS), true);
     }
 
     private static void showEldritchStorage(Player player, MagicLecternTile lectern) {
@@ -213,7 +253,6 @@ public class MagicLecternBlock extends BaseEntityBlock {
                 lectern.getStoredEldritchManuscriptCount(),
                 MagicLecternTile.MAX_STORED_ELDRITCH_MANUSCRIPTS), true);
     }
-     */
 
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {

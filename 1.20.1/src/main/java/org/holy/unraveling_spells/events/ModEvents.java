@@ -6,6 +6,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
@@ -26,9 +28,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.capability.school.PlayerSchool;
-import org.holy.unraveling_spells.capability.school.PlayerSchoolProvider;
+import org.holy.unraveling_spells.capability.PlayerSchoolProvider;
 import org.holy.unraveling_spells.capability.spell.PlayerSpell;
-import org.holy.unraveling_spells.capability.spell.PlayerSpellProvider;
+import org.holy.unraveling_spells.capability.PlayerSpellProvider;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.network.ModMessages;
 import org.holy.unraveling_spells.network.packet.CommonConfigS2CPacket;
@@ -65,7 +67,7 @@ public class ModEvents {
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.getEntity() instanceof ServerPlayer newServerPlayer) {
             boolean keepEverything = !event.isWasDeath();
-            //Persist summon timers across death
+            // persist summon timers across death
             event.getOriginal().reviveCaps();
 
             PlayerSchool oldSchoolCap = event.getOriginal().getCapability(PlayerSchoolProvider.PLAYER_SCHOOL).orElse(null);
@@ -165,7 +167,7 @@ public class ModEvents {
         }
 
         event.setCanceled(true);
-        event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
+        event.setCancellationResult(InteractionResult.SUCCESS);
     }
 
     @SubscribeEvent
@@ -218,7 +220,7 @@ public class ModEvents {
         }
 
         @Override
-        public MerchantOffer getOffer(Entity trader, net.minecraft.util.RandomSource random) {
+        public MerchantOffer getOffer(Entity trader, RandomSource random) {
             return createSellOffer(item, count, emeraldCost, maxUses, xp, priceMultiplier);
         }
     }

@@ -2,15 +2,80 @@ package org.holy.unraveling_spells.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import org.holy.unraveling_spells.capability.PlayerSchoolProvider;
+import org.holy.unraveling_spells.capability.PlayerSpellProvider;
+import org.holy.unraveling_spells.capability.school.PlayerSchool;
+import org.holy.unraveling_spells.capability.spell.PlayerSpell;
+import org.holy.unraveling_spells.commands.UTSCommand;
+import org.holy.unraveling_spells.config.SpellLearnedManager;
+import org.holy.unraveling_spells.network.ModMessages;
+import org.holy.unraveling_spells.network.packet.SchoolS2CPacket;
+import org.holy.unraveling_spells.network.packet.SpellS2CPacket;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OblivionScrollItem extends Item {
     public OblivionScrollItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        ItemStack stack = player.getItemInHand(usedHand);
+        if (level.isClientSide()) {
+            return InteractionResultHolder.pass(stack);
+        }
+
+        if (player.isShiftKeyDown()) {
+            boolean succesfulClear = false;
+
+            if (player instanceof ServerPlayer serverPlayer) {
+                Set<ResourceLocation> learnedSpells = learnedSpellsIds(serverPlayer);
+                Set<ResourceLocation> learnedSchools = learnedSchoolsIds(serverPlayer);
+
+                learnedSchools.clear();
+                learnedSpells.clear();
+
+                sync(serverPlayer, learnedSpells, learnedSchools);
+                succesfulClear = true;
+            }
+
+            if (succesfulClear) {
+                player.sendSystemMessage(Component.translatable("item.unraveling_spells.oblivion_scroll.use"));
+                stack.shrink(1);
+                level.playSound(null, player.blockPosition(), SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1f, 1.1f);
+            }
+        } else {
+            player.sendSystemMessage(Component.translatable("item.unraveling_spells.oblivion_scroll.confirm").withStyle(ChatFormatting.RED));
+        }
+        return InteractionResultHolder.pass(stack);
+    }
+
+    private static Set<ResourceLocation> learnedSpellsIds(ServerPlayer player) {
+        return PlayerSpellProvider.get(player).getSpells();
+    }
+
+    private static Set<ResourceLocation> learnedSchoolsIds(ServerPlayer player) {
+        return PlayerSchoolProvider.get(player).getSchools();
+    }
+
+    private static void sync(ServerPlayer player, Set<ResourceLocation> learnedSpells, Set<ResourceLocation> learnedSchools) {
+        ModMessages.sendToPlayer(new SpellS2CPacket(new ArrayList<>(learnedSpells)), player);
+        ModMessages.sendToPlayer(new SchoolS2CPacket(new ArrayList<>(learnedSchools)), player);
     }
 
     @Override

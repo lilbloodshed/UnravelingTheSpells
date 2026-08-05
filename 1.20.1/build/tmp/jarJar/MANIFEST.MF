@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Specification-Title: unraveling_spells
+Specification-Vendor: holy
+Specification-Version: 1
+Implementation-Title: unraveling-spells-forge-1.20.1
+Implementation-Version: 1.1.1
+Implementation-Vendor: holy
+Implementation-Timestamp: 2026-08-04T13:38:18+0400
+MixinConfigs: unraveling_spells.irons_spellbooks.mixins.json,unraveling_
+ spells.jei.mixins.json
+

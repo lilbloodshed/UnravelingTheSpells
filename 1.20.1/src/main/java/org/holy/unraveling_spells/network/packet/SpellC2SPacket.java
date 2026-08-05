@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import org.holy.unraveling_spells.capability.spell.PlayerSpellProvider;
+import org.holy.unraveling_spells.capability.PlayerSpellProvider;
 import org.holy.unraveling_spells.network.ModMessages;
 
 import java.util.ArrayList;
@@ -44,8 +44,8 @@ public class SpellC2SPacket {
                 player.getCapability(PlayerSpellProvider.PLAYER_SPELL).ifPresent(schoolData -> {
                     schoolData.getSpells().clear();
                     schoolData.getSpells().addAll(spells);
-                    // Синхронизируем данные с клиентом
-                    ModMessages.sendToClients(new SpellS2CPacket(spells));
+                    // Подтверждаем состояние только тому игроку, которому оно принадлежит.
+                    ModMessages.sendToPlayer(new SpellS2CPacket(spells), player);
                 });
             }
         });

@@ -116,7 +116,7 @@ public class MagicLecternBlock extends BaseEntityBlock {
         ItemStack heldStack = player.getItemInHand(hand);
         boolean heldEldritchManuscript =
                 Configuration.isEldritchSchoolLearningEnabled()
-                        && heldStack.is(io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get());
+                        && heldStack.is(ItemRegistry.ELDRITCH_PAGE.get());
 
         if (!pLevel.isClientSide()) {
             if (player.isShiftKeyDown()) {

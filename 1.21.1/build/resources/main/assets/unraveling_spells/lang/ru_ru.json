@@ -1,0 +1,63 @@
+{
+  "itemGroup.unraveling_spells.material_tab": "ISS: Unraveling Spells",
+
+  "block.unraveling_spells.magic_lectern": "Магическая кафедра",
+
+  "ui.unraveling_spells.school_choose": "Выберите Школы магии для изучения",
+  "ui.unraveling_spells.school_choose2": "Осталось:",
+  "ui.unraveling_spells.no_spells": "Заклинания не найдены",
+  "ui.unraveling_spells.magic_lectern.scroll_storage": "Свитки заклинаний: %s/%s",
+  "ui.unraveling_spells.magic_lectern.eldritch_storage": "Древние манускрипты: %s/%s",
+  "ui.unraveling_spells.question.title": "Важная информация",
+  "ui.unraveling_spells.question.text": "Как начать изучать магию? Сначала вам нужно выбрать школу, в которой вы хотите учиться. Но будьте осторожны! Выбрав школу, вы не сможете изменить ее, не потеряв при этом свои ресурсы. Чтобы сменить школу, вы можете найти Свиток Забвения в подземельях, который может отменить выбор школы, но также стереть ваши выученные заклинания.\nКак начать изучать заклинания? Самое важное для изучения заклинаний - это свитки заклинаний, которые также можно найти в подземельях или приобрести у торговцев. Чтобы положить их в свой инвентарь, возьмите их в руку и положите на волшебную кафедру. Чтобы убрать их с пюпитра, удерживайте нажатой клавишу SHIFT и нажмите ПКМ.\nМногие действия в интерфейсе пюпитра можно выполнить быстрее или объяснить более подробно, удерживая нажатой клавишу SHIFT",
+
+  "ui.unraveling_spells.button.done": "Готово",
+  "ui.unraveling_spells.button.hold": "Удерживайте для изучения",
+  "ui.unraveling_spells.button.ok": "ОК",
+  "ui.unraveling_spells.button.need": "Осталось: %d",
+  "ui.unraveling_spells.button.learning": "Изучение",
+  "ui.unraveling_spells.button.creating": "(В разработке)",
+
+  "ui.unraveling_spells.school.preview_only": "Только просмотр",
+  "ui.unraveling_spells.school.spells": "Заклинания школы «%s»",
+
+  "ui.unraveling_spells.spell.cast_type": "• Тип каста: ",
+  "ui.unraveling_spells.spell.cast_time": "• Время каста: ",
+  "ui.unraveling_spells.spell.mana_cost": "• Стоимость маны: ",
+  "ui.unraveling_spells.spell.cooldown": "• Перезарядка: ",
+  "ui.unraveling_spells.spell.spellPower": "• Сила заклинания: ",
+  "ui.unraveling_spells.spell.damage": "• Урон: ",
+  "ui.unraveling_spells.spell.level_change": " (%s/ур.)",
+  "ui.unraveling_spells.spell.level": "ур.",
+
+  "ui.unraveling_spells.spell.conflicts.none": "Заклинание не имеет конфликтов",
+  "ui.unraveling_spells.spell.conflicts.has": "Заклинание конфликтует с ",
+
+  "ui.unraveling_spells.tooltip.cannot_learn": "Недоступно",
+  "ui.unraveling_spells.tooltip.can_learn": "Удерживайте для изучения",
+  "ui.unraveling_spells.tooltip.can_learnFast": "ЛКМ для изучения",
+  "ui.unraveling_spells.tooltip.learned": "Изучено",
+  "ui.unraveling_spells.tooltip.info": "Информация",
+  "ui.unraveling_spells.tooltip.conflicts": "Конфликты",
+  "ui.unraveling_spells.tooltip.learning_cost": "Стоимость: %s",
+
+  "spell.unraveling_spells.cast_type.none": "None",
+  "spell.unraveling_spells.cast_type.instant": "Мгновенный",
+  "spell.unraveling_spells.cast_type.long": "Длинный",
+  "spell.unraveling_spells.cast_type.continuous": "Продолжительный",
+
+  "item.unraveling_spells.spell_scroll": "Свиток заклинаний",
+  "item.unraveling_spells.oblivion_scroll": "Свиток забвения",
+
+  "item.unraveling_spells.spell_scroll.description": "Содержит древние знания",
+  "item.unraveling_spells.spell_scroll.description2": "Даёт возможность изучать заклинания",
+
+  "item.unraveling_spells.oblivion_scroll.description": "При использовании стирает ваши изученные школы и заклинания",
+  "item.unraveling_spells.oblivion_scroll.use": "Вы успешно забыли все ваши знания...",
+  "item.unraveling_spells.oblivion_scroll.confirm": "Вы уверены что хотите стереть ваши изученные школы и заклинания? Для подтверждения используйте свиток с зажатой кнопкой SHIFT!",
+  "item.unraveling_spells.eldritch_manuscript.magic_lectern": "Можно использовать в Магической кафедре для изучения Древних заклинаний",
+
+  "jei.unraveling_spells.magic_lectern.description": "Основное рабочее место для обучения. Используйте его, чтобы выбирать магические школы и изучать заклинания с помощью свитков заклинаний",
+  "jei.unraveling_spells.spell_scroll.description": "Древнее знание, содержащееся в свитке. Используя его в Магической кафедре, вы сможете получить 1 изученное заклинание. Его можно найти в сундуках подземелий, а также приобрести у магов-торговцев",
+  "jei.unraveling_spells.oblivion_scroll.description": "С редким шансом его можно найти в сундуках подземелий и у торговцев магами. Возможность забыть свои знания об изученных школах и заклинаниях"
+}

@@ -16,7 +16,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.holy.unraveling_spells.config.ClientConfiguration;
 import org.holy.unraveling_spells.capability.spell.PlayerSpell;
-import org.holy.unraveling_spells.capability.spell.PlayerSpellProvider;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.config.SpellLearnedManager;
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +24,6 @@ public final class SpellLearningHelper {
     public static final Style OBFUSCATED_STYLE = Style.EMPTY
             .withObfuscated(true)
             .withFont(ResourceLocation.withDefaultNamespace("alt"));
-
-    private SpellLearningHelper() {
-    }
 
     public static boolean isLearned(AbstractSpell spell, @Nullable Player player) {
         if (spell == null) {

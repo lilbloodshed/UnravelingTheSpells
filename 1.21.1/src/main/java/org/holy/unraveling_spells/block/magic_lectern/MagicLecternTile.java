@@ -13,6 +13,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,8 +29,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
     public static final int MAX_STORED_ELDRITCH_MANUSCRIPTS = 64;
     private static final int STORAGE_SLOTS_PER_ITEM = 4;
     private static final int SCROLL_STORAGE_START = 0;
-    private static final int ELDRITCH_STORAGE_START =
-            SCROLL_STORAGE_START + STORAGE_SLOTS_PER_ITEM;
+    private static final int ELDRITCH_STORAGE_START = SCROLL_STORAGE_START + STORAGE_SLOTS_PER_ITEM;
     private static final int TOTAL_STORAGE_SLOTS = STORAGE_SLOTS_PER_ITEM * 2;
     private static final int ITEMS_PER_SLOT = MAX_STORED_SCROLLS / STORAGE_SLOTS_PER_ITEM;
 
@@ -64,7 +64,6 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
 
     private void updateMenuSlots(int slot) {
         if (level == null) return;
-
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
     }
 
@@ -85,7 +84,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
 
     public int getStoredEldritchManuscriptCount() {
         return getStoredItemCount(
-                io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get(),
+                ItemRegistry.ELDRITCH_PAGE.get(),
                 ELDRITCH_STORAGE_START,
                 MAX_STORED_ELDRITCH_MANUSCRIPTS);
     }
@@ -105,7 +104,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
         }
         return insertStoredItems(
                 source,
-                io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get(),
+                ItemRegistry.ELDRITCH_PAGE.get(),
                 ELDRITCH_STORAGE_START,
                 getStoredEldritchManuscriptCount(),
                 MAX_STORED_ELDRITCH_MANUSCRIPTS);
@@ -121,13 +120,13 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
 
     public ItemStack extractEldritchManuscripts(int amount) {
         return extractStoredItems(
-                io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get(),
+                ItemRegistry.ELDRITCH_PAGE.get(),
                 ELDRITCH_STORAGE_START,
                 amount,
                 getStoredEldritchManuscriptCount());
     }
 
-    private int getStoredItemCount(net.minecraft.world.item.Item item, int firstSlot, int maximum) {
+    private int getStoredItemCount(Item item, int firstSlot, int maximum) {
         int count = 0;
         int lastSlot = firstSlot + STORAGE_SLOTS_PER_ITEM;
         for (int slot = firstSlot; slot < lastSlot; slot++) {
@@ -139,8 +138,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
         return Math.min(count, maximum);
     }
 
-    private int insertStoredItems(ItemStack source, net.minecraft.world.item.Item item,
-                                  int firstSlot, int storedCount, int maximum) {
+    private int insertStoredItems(ItemStack source, Item item, int firstSlot, int storedCount, int maximum) {
         if (source.isEmpty() || !source.is(item)) {
             return 0;
         }
@@ -157,8 +155,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
         return insertable - remaining.getCount();
     }
 
-    private ItemStack extractStoredItems(net.minecraft.world.item.Item item, int firstSlot,
-                                         int amount, int storedCount) {
+    private ItemStack extractStoredItems(Item item, int firstSlot, int amount, int storedCount) {
         int toExtract = Math.min(Math.max(amount, 0), storedCount);
         int extractedCount = 0;
         int lastSlot = firstSlot + STORAGE_SLOTS_PER_ITEM;

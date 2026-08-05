@@ -13,6 +13,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -95,7 +96,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
 
     public int getStoredEldritchManuscriptCount() {
         return getStoredItemCount(
-                io.redspace.ironsspellbooks.registries.ItemRegistry.ELDRITCH_PAGE.get(),
+                ItemRegistry.ELDRITCH_PAGE.get(),
                 ELDRITCH_STORAGE_START,
                 MAX_STORED_ELDRITCH_MANUSCRIPTS);
     }
@@ -137,7 +138,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
                 getStoredEldritchManuscriptCount());
     }
 
-    private int getStoredItemCount(net.minecraft.world.item.Item item, int firstSlot, int maximum) {
+    private int getStoredItemCount(Item item, int firstSlot, int maximum) {
         int count = 0;
         int lastSlot = firstSlot + STORAGE_SLOTS_PER_ITEM;
         for (int slot = firstSlot; slot < lastSlot; slot++) {
@@ -149,8 +150,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
         return Math.min(count, maximum);
     }
 
-    private int insertStoredItems(ItemStack source, net.minecraft.world.item.Item item,
-                                  int firstSlot, int storedCount, int maximum) {
+    private int insertStoredItems(ItemStack source, Item item, int firstSlot, int storedCount, int maximum) {
         if (source.isEmpty() || !source.is(item)) {
             return 0;
         }
@@ -167,8 +167,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
         return insertable - remaining.getCount();
     }
 
-    private ItemStack extractStoredItems(net.minecraft.world.item.Item item, int firstSlot,
-                                         int amount, int storedCount) {
+    private ItemStack extractStoredItems(Item item, int firstSlot, int amount, int storedCount) {
         int toExtract = Math.min(Math.max(amount, 0), storedCount);
         int extractedCount = 0;
         int lastSlot = firstSlot + STORAGE_SLOTS_PER_ITEM;
@@ -298,7 +297,7 @@ public class MagicLecternTile extends BlockEntity implements MenuProvider {
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @javax.annotation.Nullable Direction side) {
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             return lazyItemHandler.cast();
         }

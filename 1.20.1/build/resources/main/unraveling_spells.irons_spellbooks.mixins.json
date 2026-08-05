@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "io.redspace.ironsspellbooks.unravelingspellmixin",
+  "refmap": "unraveling_spells.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AbstractSpellMixin"
+  ],
+  "client": [
+    "TooltipsUtilsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

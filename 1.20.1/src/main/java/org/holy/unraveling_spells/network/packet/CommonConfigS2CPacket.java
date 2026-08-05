@@ -5,7 +5,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
-import org.holy.unraveling_spells.client.screens.MagicLecternScreen;
+import org.holy.unraveling_spells.client.MagicLecternScreen;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.config.SpellLearnedManager;
 

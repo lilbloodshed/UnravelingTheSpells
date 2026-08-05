@@ -3,8 +3,8 @@ package org.holy.unraveling_spells.network.packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import org.holy.unraveling_spells.capability.school.PlayerSchoolProvider;
-import org.holy.unraveling_spells.capability.spell.PlayerSpellProvider;
+import org.holy.unraveling_spells.capability.PlayerSchoolProvider;
+import org.holy.unraveling_spells.capability.PlayerSpellProvider;
 import org.holy.unraveling_spells.network.ModMessages;
 
 import java.util.ArrayList;

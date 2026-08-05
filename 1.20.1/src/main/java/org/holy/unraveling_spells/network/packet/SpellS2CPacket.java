@@ -6,8 +6,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
-import org.holy.unraveling_spells.capability.spell.PlayerSpellProvider;
-import org.holy.unraveling_spells.client.screens.MagicLecternScreen;
+import org.holy.unraveling_spells.capability.PlayerSpellProvider;
+import org.holy.unraveling_spells.client.MagicLecternScreen;
 
 import java.util.ArrayList;
 import java.util.List;

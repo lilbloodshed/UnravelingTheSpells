@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraft.resources.ResourceLocation;
-import org.holy.unraveling_spells.capability.school.PlayerSchoolProvider;
+import org.holy.unraveling_spells.capability.PlayerSchoolProvider;
 import org.holy.unraveling_spells.network.ModMessages;
 
 import java.util.ArrayList;
@@ -44,8 +44,8 @@ public class SchoolC2SPacket {
                 player.getCapability(PlayerSchoolProvider.PLAYER_SCHOOL).ifPresent(schoolData -> {
                     schoolData.getSchools().clear();
                     schoolData.getSchools().addAll(schools);
-                    // Синхронизируем данные с клиентом
-                    ModMessages.sendToClients(new SchoolS2CPacket(schools));
+                    // Подтверждаем состояние только тому игроку, которому оно принадлежит.
+                    ModMessages.sendToPlayer(new SchoolS2CPacket(schools), player);
                 });
             }
         });

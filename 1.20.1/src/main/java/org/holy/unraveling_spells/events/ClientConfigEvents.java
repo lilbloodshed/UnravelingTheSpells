@@ -8,13 +8,8 @@ import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.config.SpellLearnedManager;
 
-@Mod.EventBusSubscriber(
-        modid = Unraveling_spells.MODID,
-        value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = Unraveling_spells.MODID, value = Dist.CLIENT)
 public final class ClientConfigEvents {
-    private ClientConfigEvents() {
-    }
-
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         Configuration.clearServerConfig();
