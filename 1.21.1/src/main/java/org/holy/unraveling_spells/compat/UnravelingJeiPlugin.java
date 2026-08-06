@@ -1,8 +1,8 @@
 package org.holy.unraveling_spells.compat;
 
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.registration.IRecipeRegistration;
+//import mezz.jei.api.IModPlugin;
+//import mezz.jei.api.JeiPlugin;
+//import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -10,8 +10,9 @@ import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.registries.utsItemRegistry;
 import org.jetbrains.annotations.NotNull;
 
-@JeiPlugin
-public class UnravelingJeiPlugin implements IModPlugin {
+//@JeiPlugin
+public class UnravelingJeiPlugin {//implements IModPlugin {
+    /*
     private static final ResourceLocation PLUGIN_UID = ResourceLocation.fromNamespaceAndPath(Unraveling_spells.MODID, "jei_plugin");
 
     @Override
@@ -34,4 +35,6 @@ public class UnravelingJeiPlugin implements IModPlugin {
                 Component.translatable("jei.unraveling_spells.oblivion_scroll.description")
         );
     }
+
+     */
 }

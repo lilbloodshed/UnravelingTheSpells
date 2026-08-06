@@ -93,9 +93,6 @@ dependencies {
     // ISS ***************************************************************************************************
     implementation "io.redspace:irons_spellbooks:${irons_spells_version}"
 
-    // PATREON LIB
-    implementation "curse.maven:irons-lib-1492763:${irons_lib_file}"
-
     // GECKOLIB ***************************************************************************************************
     compileOnly "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     runtimeOnly "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
@@ -113,8 +110,8 @@ dependencies {
     runtimeOnly "dev.kosmx.player-anim:player-animation-lib-forge:${player_animator_version}"
 
     // JEI ********************************************************************************************************
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    //compileOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    //runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 }
 
 tasks.withType(ProcessResources).configureEach {

@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "unraveling_spells:item/oblivion_scroll"
-  }
-}

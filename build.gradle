@@ -2,22 +2,6 @@ plugins {
     id 'base'
 }
 
-def windows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
-
-def registerVersionBuild = { String taskName, String directory ->
-    tasks.register(taskName, Exec) {
-        group = 'build'
-        description = "Builds ${directory}."
-        workingDir layout.projectDirectory.dir(directory)
-        environment 'TEMP', layout.projectDirectory.dir('.gradle-tmp').asFile.absolutePath
-        environment 'TMP', layout.projectDirectory.dir('.gradle-tmp').asFile.absolutePath
-        environment 'GRADLE_USER_HOME', layout.projectDirectory.dir('.gradle-home').asFile.absolutePath
-        commandLine windows
-                ? ['cmd', '/c', 'gradlew.bat', 'build']
-                : ['./gradlew', 'build']
-    }
-}
-
 registerVersionBuild('buildForge', '1.20.1')
 registerVersionBuild('buildNeoForge', '1.21.1')
 

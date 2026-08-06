@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class UTSCommand {
@@ -232,7 +233,7 @@ public final class UTSCommand {
         String values = displayed.stream()
                 .sorted()
                 .map(ResourceLocation::toString)
-                .collect(java.util.stream.Collectors.joining(", "));
+                .collect(Collectors.joining(", "));
         source.sendSuccess(() -> Component.literal(
                 playerName + " learned " + type.literal + " entries (" + displayed.size() + "): " + values), false);
         return displayed.size();
