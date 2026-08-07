@@ -43,7 +43,7 @@ public final class Configuration {
                 .comment(
                         "Schools whose spells do not require learning.",
                         "These schools are hidden from school selection and their spells can always be cast.",
-                        "Format: namespace:path (e.g., irons_spellbooks:fire)"
+                        "Format: \"namespace:path\" (e.g., \"irons_spellbooks:fire\")"
                 )
                 .defineList(
                         "schools_without_learning",
@@ -62,7 +62,7 @@ public final class Configuration {
         SPELL_SCROLL_COSTS = builder
                 .comment(
                         "Per-spell learning cost overrides.",
-                        "Format: namespace:spell_id=amount (e.g., irons_spellbooks:fireball=3).",
+                        "Format: \"namespace:spell_id=amount\" (e.g., \"irons_spellbooks:fireball=3\").",
                         "The amount must be between 1 and 64."
                 )
                 .defineList(
@@ -74,7 +74,7 @@ public final class Configuration {
         LEARNED_SPELLS = builder
                 .comment(
                         "List of spells that are learned by default.",
-                        "Format: namespace:path (e.g., irons_spellbooks:fireball)",
+                        "Format: \"namespace:path\" (e.g., \"irons_spellbooks:fireball\")",
                         "These spells will be marked as learned and cannot be learned again."
                 )
                 .defineList(

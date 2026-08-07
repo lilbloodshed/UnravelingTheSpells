@@ -259,9 +259,9 @@ public class MagicLecternBlock extends BaseEntityBlock {
         if (pState.getBlock() != pNewState.getBlock()) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
 
-            //if (blockEntity instanceof MagicLecternTile) {
-            //    ((MagicLecternTile) blockEntity).drops();
-            //}
+            if (blockEntity instanceof MagicLecternTile) {
+                ((MagicLecternTile) blockEntity).drops();
+            }
         }
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
