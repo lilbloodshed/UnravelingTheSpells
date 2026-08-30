@@ -10,6 +10,7 @@ import org.holy.unraveling_spells.network.packet.LearnSpellPacket;
 import org.holy.unraveling_spells.network.packet.RequestSyncPacket;
 import org.holy.unraveling_spells.network.packet.SchoolC2SPacket;
 import org.holy.unraveling_spells.network.packet.SchoolS2CPacket;
+import org.holy.unraveling_spells.network.packet.SetTotalPlayerXPPacket;
 import org.holy.unraveling_spells.network.packet.SpellC2SPacket;
 import org.holy.unraveling_spells.network.packet.SpellS2CPacket;
 
@@ -29,6 +30,7 @@ public final class ModMessages {
         registrar.playToClient(SpellS2CPacket.TYPE, SpellS2CPacket.STREAM_CODEC, SpellS2CPacket::handle);
         registrar.playToServer(LearnSpellPacket.TYPE, LearnSpellPacket.STREAM_CODEC, LearnSpellPacket::handle);
         registrar.playToClient(CommonConfigS2CPacket.TYPE, CommonConfigS2CPacket.STREAM_CODEC, CommonConfigS2CPacket::handle);
+        registrar.playToClient(SetTotalPlayerXPPacket.TYPE, SetTotalPlayerXPPacket.STREAM_CODEC, SetTotalPlayerXPPacket::handle);
     }
 
     public static void sendToServer(CustomPacketPayload message) {

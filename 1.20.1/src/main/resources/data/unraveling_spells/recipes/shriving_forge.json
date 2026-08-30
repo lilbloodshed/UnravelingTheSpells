@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:amethyst_shard"
+    },
+    {
+      "item": "irons_spellbooks:scroll_forge"
+    },
+    {
+      "item": "unraveling_spells:spell_scroll"
+    },
+    {
+      "item": "irons_spellbooks:shriving_stone"
+    }
+  ],
+  "result": {
+    "item": "unraveling_spells:shriving_forge"
+  }
+}

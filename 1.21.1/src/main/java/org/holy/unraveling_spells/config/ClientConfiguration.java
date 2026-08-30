@@ -7,6 +7,7 @@ public final class ClientConfiguration {
     public static final ModConfigSpec.BooleanValue SHOW_SPELLS_NAME;
     public static final ModConfigSpec.BooleanValue SHOW_JEI_GUIDE_SPELLS;
     public static final ModConfigSpec.BooleanValue ENABLED_ANIMATIONS;
+    public static final ModConfigSpec.EnumValue<GUItype> GUI_TYPE;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -23,7 +24,16 @@ public final class ClientConfiguration {
                 .comment("If enabled, AnimLib animations will be displayed in the GUI.\nAnimLib is an optional client-side dependency.")
                 .define("enabled_animations", true);
 
+        GUI_TYPE = builder
+                .comment("The parameter is responsible for changing the appearance of the Magic lectern's GUI.")
+                .defineEnum("gui_type", GUItype.CLASSIC);
+
         CONFIG_SPEC = builder.build();
+    }
+
+    public enum GUItype {
+        CLASSIC,
+        LARGER
     }
 
     private ClientConfiguration() {

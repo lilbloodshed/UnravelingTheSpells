@@ -11,7 +11,6 @@ import org.holy.unraveling_spells.network.packet.*;
 
 public class ModMessages {
     private static SimpleChannel INSTANCE;
-
     private static int packetId = 0;
     private static int id() {
         return packetId++;
@@ -68,15 +67,19 @@ public class ModMessages {
                 .encoder(CommonConfigS2CPacket::toBytes)
                 .consumerMainThread(CommonConfigS2CPacket::handle)
                 .add();
+
+        net.messageBuilder(SetTotalPlayerXPPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SetTotalPlayerXPPacket::new)
+                .encoder(SetTotalPlayerXPPacket::encode)
+                .consumerMainThread(SetTotalPlayerXPPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
         INSTANCE.sendToServer(message);
     }
 
-    public static <MSG> void sendToPlayer(MSG message, ServerPlayer player) {
-        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
-    }
+    public static <MSG> void sendToPlayer(MSG message, ServerPlayer player) { INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message); }
 
     public static <MSG> void sendToClients(MSG message) {
         INSTANCE.send(PacketDistributor.ALL.noArg(), message);

@@ -30,7 +30,7 @@ import org.holy.unraveling_spells.registries.utsItemRegistry;
 
 import javax.annotation.Nullable;
 
-import static org.holy.unraveling_spells.registries.utsBlockRegistry.SIMPLE_CODEC;
+import static org.holy.unraveling_spells.registries.utsBlockRegistry.MAGICLECTERN_CODEC;
 
 public class MagicLecternBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING;
@@ -72,7 +72,7 @@ public class MagicLecternBlock extends BaseEntityBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return SIMPLE_CODEC.get();
+        return MAGICLECTERN_CODEC.get();
     }
 
     public RenderShape getRenderShape(BlockState blockState) {

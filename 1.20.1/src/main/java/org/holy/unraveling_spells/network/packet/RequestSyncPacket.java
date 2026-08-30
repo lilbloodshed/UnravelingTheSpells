@@ -28,6 +28,7 @@ public class RequestSyncPacket {
                         CommonConfigS2CPacket.fromServerConfig(),
                         player
                 );
+                ModMessages.sendToPlayer(new SetTotalPlayerXPPacket(player.totalExperience), player);
 
                 player.getCapability(PlayerSchoolProvider.PLAYER_SCHOOL).ifPresent(cap -> {
                     ModMessages.sendToPlayer(

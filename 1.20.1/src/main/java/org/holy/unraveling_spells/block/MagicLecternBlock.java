@@ -3,8 +3,11 @@ package org.holy.unraveling_spells.block;
 import io.redspace.ironsspellbooks.registries.ItemRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +31,7 @@ import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.registries.utsItemRegistry;
 
 import javax.annotation.Nullable;
+import java.util.Random;
 
 public class MagicLecternBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING;
@@ -180,8 +184,7 @@ public class MagicLecternBlock extends BaseEntityBlock {
                 MagicLecternTile.MAX_STORED_SCROLLS), true);
     }
 
-    private static void withdrawEldritchManuscripts(
-            MagicLecternTile lectern, Player player, InteractionHand hand) {
+    private static void withdrawEldritchManuscripts(MagicLecternTile lectern, Player player, InteractionHand hand) {
         ItemStack heldStack = player.getItemInHand(hand);
         Item manuscript = ItemRegistry.ELDRITCH_PAGE.get();
 

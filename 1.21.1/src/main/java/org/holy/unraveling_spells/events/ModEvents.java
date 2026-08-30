@@ -32,6 +32,7 @@ import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.network.ModMessages;
 import org.holy.unraveling_spells.network.packet.CommonConfigS2CPacket;
 import org.holy.unraveling_spells.network.packet.SchoolS2CPacket;
+import org.holy.unraveling_spells.network.packet.SetTotalPlayerXPPacket;
 import org.holy.unraveling_spells.network.packet.SpellS2CPacket;
 import org.holy.unraveling_spells.registries.utsItemRegistry;
 
@@ -39,10 +40,6 @@ import java.util.ArrayList;
 
 @EventBusSubscriber(modid = Unraveling_spells.MODID)
 public final class ModEvents {
-    private static final String IRONS_SPELLBOOKS_MODID = "irons_spellbooks";
-    private static final String IRONS_MERCHANT_TRADES_ADDED =
-            Unraveling_spells.MODID + ".merchant_trades_added";
-
     private ModEvents() {
     }
 
@@ -67,6 +64,7 @@ public final class ModEvents {
         }
 
         ModMessages.sendToPlayer(CommonConfigS2CPacket.fromServerConfig(), serverPlayer);
+        ModMessages.sendToPlayer(new SetTotalPlayerXPPacket(serverPlayer.totalExperience), serverPlayer);
         ModMessages.sendToPlayer(
                 new SchoolS2CPacket(new ArrayList<>(PlayerSchoolProvider.get(serverPlayer).getSchools())),
                 serverPlayer);
@@ -74,39 +72,6 @@ public final class ModEvents {
                 new SpellS2CPacket(new ArrayList<>(PlayerSpellProvider.get(serverPlayer).getSpells())),
                 serverPlayer);
     }
-
-    @SubscribeEvent
-    public static void onWandererTrades(WandererTradesEvent event) {
-        event.getRareTrades().add(new SellItemTrade(
-                utsItemRegistry.SPELL_SCROLL.get(), 1, 16, 4, 4, 0.05F));
-        event.getRareTrades().add(new SellItemTrade(
-                utsItemRegistry.OBLIVION_SCROLL.get(), 1, 38, 1, 8, 0.05F));
-    }
-
-    @SubscribeEvent
-    public static void onIronMerchantInteract(PlayerInteractEvent.EntityInteract event) {
-        if (event.getLevel().isClientSide()) {
-            return;
-        }
-
-        Entity target = event.getTarget();
-        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(target.getType());
-
-        if (!IRONS_SPELLBOOKS_MODID.equals(entityId.getNamespace())
-                || !(target instanceof Merchant merchant)) {
-            return;
-        }
-
-        if (target.getPersistentData().getBoolean(IRONS_MERCHANT_TRADES_ADDED)) {
-            return;
-        }
-
-        MerchantOffers offers = merchant.getOffers();
-        addOfferIfMissing(offers, utsItemRegistry.SPELL_SCROLL.get(), 1, 16, 4, 4, 0.05F);
-        addOfferIfMissing(offers, utsItemRegistry.OBLIVION_SCROLL.get(), 1, 38, 1, 8, 0.05F);
-        target.getPersistentData().putBoolean(IRONS_MERCHANT_TRADES_ADDED, true);
-    }
-
     @SubscribeEvent
     public static void onEldritchManuscriptUse(PlayerInteractEvent.RightClickItem event) {
         boolean eldritchLearningReplaced =
@@ -129,68 +94,6 @@ public final class ModEvents {
             event.getToolTip().add(Component.translatable(
                             "item.unraveling_spells.eldritch_manuscript.magic_lectern")
                     .withStyle(ChatFormatting.GRAY));
-        }
-    }
-
-    private static void addOfferIfMissing(
-            MerchantOffers offers,
-            Item item,
-            int count,
-            int emeraldCost,
-            int maxUses,
-            int xp,
-            float priceMultiplier) {
-        for (MerchantOffer offer : offers) {
-            if (offer.getResult().is(item)) {
-                return;
-            }
-        }
-
-        offers.add(createSellOffer(item, count, emeraldCost, maxUses, xp, priceMultiplier));
-    }
-
-    private static MerchantOffer createSellOffer(
-            Item item,
-            int count,
-            int emeraldCost,
-            int maxUses,
-            int xp,
-            float priceMultiplier) {
-        return new MerchantOffer(
-                new ItemCost(Items.EMERALD, emeraldCost),
-                new ItemStack(item, count),
-                maxUses,
-                xp,
-                priceMultiplier);
-    }
-
-    private static final class SellItemTrade implements VillagerTrades.ItemListing {
-        private final Item item;
-        private final int count;
-        private final int emeraldCost;
-        private final int maxUses;
-        private final int xp;
-        private final float priceMultiplier;
-
-        private SellItemTrade(
-                Item item,
-                int count,
-                int emeraldCost,
-                int maxUses,
-                int xp,
-                float priceMultiplier) {
-            this.item = item;
-            this.count = count;
-            this.emeraldCost = emeraldCost;
-            this.maxUses = maxUses;
-            this.xp = xp;
-            this.priceMultiplier = priceMultiplier;
-        }
-
-        @Override
-        public MerchantOffer getOffer(Entity trader, RandomSource random) {
-            return createSellOffer(
-                    item, count, emeraldCost, maxUses, xp, priceMultiplier);
         }
     }
 }

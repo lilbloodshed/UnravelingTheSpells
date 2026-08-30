@@ -42,9 +42,6 @@ import java.util.ArrayList;
 
 @Mod.EventBusSubscriber(modid = Unraveling_spells.MODID)
 public class ModEvents {
-    private static final String IRONS_SPELLBOOKS_MODID = "irons_spellbooks";
-    private static final String IRONS_MERCHANT_TRADES_ADDED = Unraveling_spells.MODID + ".merchant_trades_added";
-
     @SubscribeEvent
     public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
         event.register(PlayerSchool.class);
@@ -125,35 +122,6 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    public static void onWandererTrades(WandererTradesEvent event) {
-        event.getRareTrades().add(new SellItemTrade(utsItemRegistry.SPELL_SCROLL.get(), 1, 16, 4, 4, 0.05F));
-        event.getRareTrades().add(new SellItemTrade(utsItemRegistry.OBLIVION_SCROLL.get(), 1, 38, 1, 8, 0.05F));
-    }
-
-    @SubscribeEvent
-    public static void onIronMerchantInteract(PlayerInteractEvent.EntityInteract event) {
-        if (event.getLevel().isClientSide()) {
-            return;
-        }
-
-        Entity target = event.getTarget();
-        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(target.getType());
-
-        if (entityId == null || !IRONS_SPELLBOOKS_MODID.equals(entityId.getNamespace()) || !(target instanceof Merchant merchant)) {
-            return;
-        }
-
-        if (target.getPersistentData().getBoolean(IRONS_MERCHANT_TRADES_ADDED)) {
-            return;
-        }
-
-        MerchantOffers offers = merchant.getOffers();
-        addOfferIfMissing(offers, utsItemRegistry.SPELL_SCROLL.get(), 1, 16, 4, 4, 0.05F);
-        addOfferIfMissing(offers, utsItemRegistry.OBLIVION_SCROLL.get(), 1, 38, 1, 8, 0.05F);
-        target.getPersistentData().putBoolean(IRONS_MERCHANT_TRADES_ADDED, true);
-    }
-
-    @SubscribeEvent
     public static void onEldritchManuscriptUse(PlayerInteractEvent.RightClickItem event) {
         boolean eldritchLearningReplaced =
                 Configuration.isEldritchSchoolLearningEnabled()
@@ -178,50 +146,6 @@ public class ModEvents {
             event.getToolTip().add(Component.translatable(
                             "item.unraveling_spells.eldritch_manuscript.magic_lectern")
                     .withStyle(ChatFormatting.GRAY));
-        }
-    }
-
-    private static void addOfferIfMissing(MerchantOffers offers, Item item, int count, int emeraldCost, int maxUses, int xp, float priceMultiplier) {
-        for (MerchantOffer offer : offers) {
-            if (offer.getResult().is(item)) {
-                return;
-            }
-        }
-
-        offers.add(createSellOffer(item, count, emeraldCost, maxUses, xp, priceMultiplier));
-    }
-
-    private static MerchantOffer createSellOffer(Item item, int count, int emeraldCost, int maxUses, int xp, float priceMultiplier) {
-        return new MerchantOffer(
-                new ItemStack(Items.EMERALD, emeraldCost),
-                ItemStack.EMPTY,
-                new ItemStack(item, count),
-                maxUses,
-                xp,
-                priceMultiplier
-        );
-    }
-
-    private static class SellItemTrade implements VillagerTrades.ItemListing {
-        private final Item item;
-        private final int count;
-        private final int emeraldCost;
-        private final int maxUses;
-        private final int xp;
-        private final float priceMultiplier;
-
-        private SellItemTrade(Item item, int count, int emeraldCost, int maxUses, int xp, float priceMultiplier) {
-            this.item = item;
-            this.count = count;
-            this.emeraldCost = emeraldCost;
-            this.maxUses = maxUses;
-            this.xp = xp;
-            this.priceMultiplier = priceMultiplier;
-        }
-
-        @Override
-        public MerchantOffer getOffer(Entity trader, RandomSource random) {
-            return createSellOffer(item, count, emeraldCost, maxUses, xp, priceMultiplier);
         }
     }
 }

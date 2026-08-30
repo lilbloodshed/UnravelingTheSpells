@@ -16,6 +16,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.holy.unraveling_spells.client.MagicLecternScreen;
+import org.holy.unraveling_spells.client.ShrivingForgeScreen;
 import org.holy.unraveling_spells.config.ClientConfiguration;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.network.ModMessages;
@@ -65,5 +66,6 @@ public class Unraveling_spells {
     @SuppressWarnings("removal")
     void clientSetup(final FMLClientSetupEvent e) {
         MenuScreens.register(utsMenuRegistry.MAGIC_TABLE_MENU.get(), MagicLecternScreen::new);
+        MenuScreens.register(utsMenuRegistry.SHRIVING_FORGE_MENU.get(), ShrivingForgeScreen::new);
     }
 }

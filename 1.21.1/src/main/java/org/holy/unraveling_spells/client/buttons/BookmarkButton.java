@@ -8,6 +8,8 @@ import org.holy.unraveling_spells.client.MagicLecternScreen;
 
 public class BookmarkButton extends Button {
     private BookmarkType type;
+    private boolean isPressed = false;
+
     public BookmarkButton(int x, int y, BookmarkType type) {
         super(new Builder(Component.literal(""), button -> {})
                 .pos(x, y)
@@ -47,18 +49,48 @@ public class BookmarkButton extends Button {
                         16, 22);
             }
         } else if (type == BookmarkType.BLUE) {
-            if (!isMouseOver(mouseX, mouseY)) {
-                guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
-                        getX(), getY(),
-                        144, 112,
-                        16, 16);
+            if (!isPressed()) {
+                if (!isMouseOver(mouseX, mouseY)) {
+                    guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
+                            getX(), getY(),
+                            144, 112,
+                            16, 16);
+                } else {
+                    guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
+                            getX(), getY(),
+                            144, 128,
+                            16, 16);
+                }
             } else {
                 guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
                         getX(), getY(),
-                        160, 112,
-                        16, 22);
+                        144, 144,
+                        16, 16);
+            }
+        } else if (type == BookmarkType.YELLOW) {
+            if (!isPressed()) {
+                if (!isMouseOver(mouseX, mouseY)) {
+                    guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
+                            getX(), getY(),
+                            160, 112,
+                            16, 16);
+                } else {
+                    guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
+                            getX(), getY(),
+                            160, 128,
+                            16, 16);
+                }
+            } else {
+                guiGraphics.blit(MagicLecternScreen.TEXTURE_BUTTONS,
+                        getX(), getY(),
+                        160, 144,
+                        16, 16);
             }
         }
+    }
+
+    public boolean isPressed() {
+        return isPressed;
     }
 
     @Override
@@ -87,6 +119,7 @@ public class BookmarkButton extends Button {
     public enum BookmarkType {
         SCROLLS,
         RED,
-        BLUE
+        BLUE,
+        YELLOW
     }
 }

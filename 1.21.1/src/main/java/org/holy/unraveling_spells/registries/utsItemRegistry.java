@@ -29,6 +29,12 @@ public class utsItemRegistry {
             new Item.Properties()
     );
 
+    public static final DeferredItem<BlockItem> SHRIVING_FORGE_ITEM = ITEMS.registerSimpleBlockItem(
+            "shriving_forge",
+            utsBlockRegistry.SHRIVING_FORGE_BLOCK,
+            new Item.Properties().rarity(Rarity.EPIC)
+    );
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

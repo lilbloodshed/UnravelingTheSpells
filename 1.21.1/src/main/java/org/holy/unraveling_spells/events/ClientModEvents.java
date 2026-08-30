@@ -5,8 +5,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.client.MagicLecternScreen;
+import org.holy.unraveling_spells.client.ShrivingForgeScreen;
+import org.holy.unraveling_spells.block.shriving_forge.ShrivingForgeRenderer;
+import org.holy.unraveling_spells.registries.utsBlockRegistry;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.config.SpellLearnedManager;
 import org.holy.unraveling_spells.registries.utsMenuRegistry;
@@ -19,6 +23,12 @@ public final class ClientModEvents {
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(utsMenuRegistry.MAGIC_LECTERN_MENU.get(), MagicLecternScreen::new);
+        event.register(utsMenuRegistry.SHRIVING_FORGE_MENU.get(), ShrivingForgeScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(utsBlockRegistry.SHRIVING_FORGE_TILE.get(), ShrivingForgeRenderer::new);
     }
 
     @SubscribeEvent

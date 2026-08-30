@@ -35,8 +35,8 @@ import org.holy.unraveling_spells.capability.school.PlayerSchool;
 import org.holy.unraveling_spells.capability.spell.PlayerSpell;
 import org.holy.unraveling_spells.client.buttons.*;
 import org.holy.unraveling_spells.client.components.ScrollableTextArea;
-import org.holy.unraveling_spells.client.buttons.*;
 import org.holy.unraveling_spells.compat.AnimationCompat;
+import org.holy.unraveling_spells.config.ClientConfiguration;
 import org.holy.unraveling_spells.config.Configuration;
 import org.holy.unraveling_spells.config.SpellConflictManager;
 import org.holy.unraveling_spells.config.SpellLearnedManager;
@@ -54,11 +54,11 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu> {
-    public static final ResourceLocation TEXTURE_BG = ResourceLocation.fromNamespaceAndPath("unraveling_spells", "textures/gui/bg.png");
+    public static final ResourceLocation TEXTURE_BG = ResourceLocation.fromNamespaceAndPath("unraveling_spells", "textures/gui/magic_lectern_gui.png");
     public static final ResourceLocation TEXTURE_BUTTONS = ResourceLocation.fromNamespaceAndPath("unraveling_spells", "textures/gui/buttons.png");
 
+    boolean isDevEnabled = false;
     MagicLecternTile blockEntity;
-
     public static final int FONT_COLOR = 0xD9CAD5;
     public static final int FONTDISABLED_COLOR = 0x786D76;
 
@@ -66,12 +66,15 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     private boolean isSyncing, isSyncingCommonConfig, isSyncingSchools, isSyncingSpells, isInitialized = false;
 
     private LearningTab activeLearningTab = LearningTab.SCHOOLS;
+    private Enum<ClientConfiguration.GUItype> guiType = ClientConfiguration.GUI_TYPE.get();
+    private int total_player_xp = 0;
 
     //************* SCHOOL *************
     private int currentIndex = 0;
     private final int SCHOOLS_VISIBLE_COUNT = 3;
     private List<SchoolType> schoolTypes = new ArrayList<>();
     private Set<ResourceLocation> selectedSchools = new CopyOnWriteArraySet<>();
+    private Set<ResourceLocation> learnedSchools = new CopyOnWriteArraySet<>();
     private final List<ResourceLocation> syncedSchoolIds = new ArrayList<>();
     private SchoolType schoolDetailed;
 
@@ -134,7 +137,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     private static final float SPELL_ARROW_FADE_DURATION = 0.24f;
     private static final float SCHOOL_PANEL_JUMP_HEIGHT = 5.0f;
     private static final float SCHOOL_PANEL_JUMP_DURATION = 0.12f;
-    private static final int SPELL_PANEL_WIDTH = 184;
+    private static int SPELL_PANEL_WIDTH = 184;
     private static final int SPELL_PANEL_HEIGHT = 108;
     private static final int SPELL_INFO_X_OFFSET = 28;
     private static final int SPELL_INFO_Y_OFFSET = 48;
@@ -169,12 +172,18 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         CONFLICTS
     }
 
-    private record SchoolButtonAnimation(Button schoolButton, Button detailsButton,
-                                         int targetSchoolX, int targetDetailsX) {
-    }
+    private record SchoolButtonAnimation(Button schoolButton, Button detailsButton, int targetSchoolX, int targetDetailsX) { }
 
     public MagicLecternScreen(MagicLecternMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+    }
+
+    public void setTotalPlayerXP(int total_player_xp) {
+        this.total_player_xp = total_player_xp;
+    }
+
+    private boolean isConfigXPType() {
+        return Configuration.getSchoolPriceType() == Configuration.LearnType.XP;
     }
 
     @Override
@@ -222,6 +231,8 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         allSpells.clear();
         allSpells.addAll(SpellRegistry.getEnabledSpells());
 
+        SPELL_PANEL_WIDTH = (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? 184 : 256;
+
         startSync();
     }
 
@@ -255,6 +266,17 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
         if (questionWindowOpen) {
             renderQuestionWindow(guiGraphics, p_283661_, p_281248_);
+        }
+
+        if (isDevEnabled) {
+            guiGraphics.drawString(font, "total_player_xp : "+total_player_xp, 0, 0, FONT_COLOR, true);
+            guiGraphics.drawString(font, "learnedSchools : "+learnedSchools.size()+" "+learnedSchools, 0, 8, FONT_COLOR, true);
+            guiGraphics.drawString(font, "selectedSchools : "+selectedSchools.size(), 0, 16, FONT_COLOR, true);
+            guiGraphics.drawString(font, "requiredSchoolCount : "+getRequiredSchoolCount(), 0, 24, FONT_COLOR, true);
+            guiGraphics.drawString(font, "remainingSchoolSlots : "+getRemainingSchoolSlots(), 0, 32, FONT_COLOR, true);
+
+            guiGraphics.drawString(font, "school_price_type : "+Configuration.SCHOOLS_PRICE_TYPE.get(), 0, 48, FONT_COLOR, true);
+            guiGraphics.drawString(font, "school_xp_allow_bulk_learning : "+Configuration.XP_ALLOW_BULK_LEARNING.get(), 0, 56, FONT_COLOR, true);
         }
     }
 
@@ -428,19 +450,28 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
                 @Override
                 public void onPress() {
-                    if (schoolListAnimating) return;
-
                     ResourceLocation schoolId = school.getId();
+                    if (schoolListAnimating || learnedSchools.contains(schoolId)) return;
+                    if (Configuration.isMaxSchoolsLimitEnabled()
+                            && learnedSchools.size() >= getRequiredSchoolCount()) return;
 
                     if (isSchoolContains()) {
                         selectedSchools.remove(schoolId);
                         AnimButtonYTo(this, BUTTON_BASE_Y);
                         AnimButtonYTo(detailsButtonRef[0], BUTTON_BASE_Y + 60);
                     } else {
-                        if (selectedSchools.size() < getRequiredSchoolCount()) {
+                        if (isConfigXPType()
+                                && (Configuration.isSchoolXpBulkLearningAllowed() || selectedSchools.isEmpty())
+                                && selectedSchools.size() < getRemainingSchoolSlots()) {
                             selectedSchools.add(schoolId);
                             AnimButtonYTo(this, BUTTON_SELECTED_Y);
                             AnimButtonYTo(detailsButtonRef[0], BUTTON_SELECTED_Y + 60);
+                        } else if (!isConfigXPType()){
+                            if (selectedSchools.size() < getRemainingSchoolSlots()) {
+                                selectedSchools.add(schoolId);
+                                AnimButtonYTo(this, BUTTON_SELECTED_Y);
+                                AnimButtonYTo(detailsButtonRef[0], BUTTON_SELECTED_Y + 60);
+                            }
                         }
                     }
                 }
@@ -466,7 +497,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 @Override
                 public boolean isSchoolContains() {
                     ResourceLocation schoolId = school.getId();
-                    return selectedSchools.contains(schoolId);
+                    return selectedSchools.contains(schoolId) || learnedSchools.contains(schoolId);
                 }
             };
 
@@ -566,11 +597,18 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         ClassicButton confirmButton = new HoldConfirmButton(
                 left + (panelWidth / 2) - (128/2), top + panelHeight - 30,
                 128, 18, Component.translatable(String.format("ui.unraveling_spells.button.need",
-                getRequiredSchoolCount() - selectedSchools.size()))) {
+                getRemainingSchoolSlots() - selectedSchools.size()))) {
             @Override
             public boolean isActive() {
-                if (selectedSchools.size() == getRequiredSchoolCount()) {
-                    return true;
+                if (selectedSchools.isEmpty() || selectedSchools.size() > getRemainingSchoolSlots()) return false;
+                if (isConfigXPType()) {
+                    return getMinecraft().player != null
+                            && getMinecraft().player.experienceLevel >= Configuration.getXpMinimumLevel()
+                            && total_player_xp >= xpCostSchools();
+                } else {
+                    if (selectedSchools.size() == getRemainingSchoolSlots()) {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -584,27 +622,38 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             protected void onConfirmed() {
                 List<ResourceLocation> selectedSchoolsList = new ArrayList<>(selectedSchools);
                 ModMessages.sendToServer(new SchoolC2SPacket(selectedSchoolsList));
-
-                //startSync();
-                //isSyncing = true;
             }
 
             @Override
             public String getTitle() {
-                if (isActive()) {
-                    if (Screen.hasShiftDown()) {
-                        return Component.translatable("ui.unraveling_spells.button.done").getString();
+                if (!isConfigXPType()) {
+                    if (isActive()) {
+                        if (Screen.hasShiftDown()) {
+                            return Component.translatable("ui.unraveling_spells.button.done").getString();
+                        }
+                        return Component.translatable("ui.unraveling_spells.button.hold").getString();
                     }
-                    return Component.translatable("ui.unraveling_spells.button.hold").getString();
+                    return String.format(Component.translatable("ui.unraveling_spells.button.need").getString(),
+                            (getRemainingSchoolSlots() - selectedSchools.size()));
+                } else {
+                    if(Screen.hasShiftDown()) {
+                        return String.format(Component.translatable("ui.unraveling_spells.button.cost_exp").getString(),
+                                xpCostSchools());
+                    }
+                    if (total_player_xp >= xpCostSchools()) {
+                        return Component.translatable("ui.unraveling_spells.button.hold").getString();
+                    } else {
+                        return Component.translatable("ui.unraveling_spells.button.not_enough").getString();
+                    }
                 }
-                return String.format(Component.translatable("ui.unraveling_spells.button.need").getString(),
-                        (getRequiredSchoolCount() - selectedSchools.size()));
             }
         };
 
         addRenderableWidget(nextButton);
         addRenderableWidget(backButton);
-        addRenderableWidget(confirmButton);
+        int requiredSchoolCount = getRequiredSchoolCount();
+        if (requiredSchoolCount == 0
+                || learnedSchools.size() < requiredSchoolCount || isConfigXPType()) addRenderableWidget(confirmButton);
 
         renderBookmarks();
 
@@ -617,6 +666,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             schoolControlButtons.add(confirmButton);
             startSchoolListAnimation();
         }
+    }
+
+    private int xpCostSchools() {
+        return Configuration.getSchoolXpCost(selectedSchools, learnedSchools.size());
+    }
+
+    private int getRemainingSchoolSlots() {
+        return Math.max(0, getRequiredSchoolCount() - learnedSchools.size());
     }
 
     private ResourceLocation getSchoolIcon(SchoolType school) {
@@ -635,6 +692,8 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     }
 
     private int getRequiredSchoolCount() {
+        if (isConfigXPType() && !Configuration.XP_RESPECT_MAX_SCHOOLS.get()) return schoolTypes.size();
+        if (Configuration.MAX_SCHOOLS.get() == 0) return schoolTypes.size();
         return Math.min(Configuration.getMaxSchools(), schoolTypes.size());
     }
 
@@ -670,7 +729,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         nextSchoolSwitchButton = null;
         learnSpellButton = null;
 
-        List<SchoolType> learnedSchoolTypes = new ArrayList<>(selectedSchools.stream()
+        List<SchoolType> learnedSchoolTypes = new ArrayList<>(learnedSchools.stream()
                 .map(id -> SchoolRegistry.REGISTRY.get().getValue(id))
                 .filter(school -> school != null)
                 .filter(school -> !Configuration.isSchoolLearningDisabled(school.getId()))
@@ -706,9 +765,11 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
         int currentSchoolIndex = learnedSchoolTypes.indexOf(currentSchool);
         int schoolPanelX = left + 20;
-        int schoolArrowY = top + panelHeight / 2 - 8;
+        int schoolArrowY = (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? top + panelHeight / 2 - 8 : top + 4;
 
-        previousSchoolSwitchButton = new ArrowButton(schoolPanelX - 11, schoolArrowY, "left") {
+        previousSchoolSwitchButton = new ArrowButton(
+                (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? schoolPanelX - 11 : left + (panelWidth / 2) - 64 - 12,
+                schoolArrowY, "left") {
             @Override
             public void onPress() {
                 if (isActive()) {
@@ -721,8 +782,9 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 return active && spellListTransition == SpellListTransition.NONE && currentSchoolIndex > 0;
             }
         };
-
-        nextSchoolSwitchButton = new ArrowButton(schoolPanelX + 56 + 2, schoolArrowY, "right") {
+        nextSchoolSwitchButton = new ArrowButton(
+                (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? schoolPanelX + 56 + 2 : left + (panelWidth / 2) + 64 + 3,
+                schoolArrowY, "right") {
             @Override
             public void onPress() {
                 if (isActive()) {
@@ -793,7 +855,6 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         addRenderableWidget(characteristicSpellButton);
 
         renderBookmarks();
-
     }
 
     private void createSpellsButtons() {
@@ -1279,48 +1340,61 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         guiGraphics.setColor(1.0f, 1.0f, 1.0f, spellTabContentAlpha);
 
         //school panel
-        final int SCHOOL_PANEL_WEIGHT = 56;
-        final int SCHOOL_PANEL_HEIGHT = 86;
-        final int SCHOOL_PANEL_X = left + 20;
-        final int SCHOOL_PANEL_Y = top + (panelHeight/2) - (SCHOOL_PANEL_HEIGHT/2)
-                + Math.round(schoolPanelYOffset);
+        int SCHOOL_PANEL_WEIGHT = 56;
+        int SCHOOL_PANEL_HEIGHT = 86;
+        int SCHOOL_PANEL_X = left + 20;
+        int SCHOOL_PANEL_Y = top + (panelHeight/2) - (SCHOOL_PANEL_HEIGHT/2) + Math.round(schoolPanelYOffset);
 
-        guiGraphics.blitNineSliced(TEXTURE_BUTTONS, SCHOOL_PANEL_X, SCHOOL_PANEL_Y,
-                SCHOOL_PANEL_WEIGHT, SCHOOL_PANEL_HEIGHT,
-                10, 10,
-                10, 10,
-                56, 32,
-                0, 48);
+        if (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) {
+            guiGraphics.blitNineSliced(TEXTURE_BUTTONS, SCHOOL_PANEL_X, SCHOOL_PANEL_Y,
+                    SCHOOL_PANEL_WEIGHT, SCHOOL_PANEL_HEIGHT,
+                    10, 10,
+                    10, 10,
+                    56, 32,
+                    0, 48);
 
-        renderSchoolIcon(guiGraphics, currentSchool,
-                SCHOOL_PANEL_X + (SCHOOL_PANEL_WEIGHT/2) - 16,
-                SCHOOL_PANEL_Y + 10);
+            renderSchoolIcon(guiGraphics, currentSchool,
+                    SCHOOL_PANEL_X + (SCHOOL_PANEL_WEIGHT/2) - 16,
+                    SCHOOL_PANEL_Y + 10);
+
+            if (!learnedSchools.contains(currentSchool.getId())) {
+                Component previewOnlyText = Component.translatable("ui.unraveling_spells.school.preview_only");
+                int previewTextWidth = SCHOOL_PANEL_WEIGHT - 8;
+                int previewTextX = SCHOOL_PANEL_X + 4;
+                int previewTextY = SCHOOL_PANEL_Y + 65;
+                int previewTextColor = ((int) (spellTabContentAlpha * 255.0f) << 24)
+                        | (FONTDISABLED_COLOR & 0xFFFFFF);
+
+                for (FormattedCharSequence line : font.split(previewOnlyText, previewTextWidth)) {
+                    if (previewTextY + font.lineHeight > SCHOOL_PANEL_Y + SCHOOL_PANEL_HEIGHT - 1) { break; }
+
+                    guiGraphics.drawString(font, line,
+                            previewTextX + (previewTextWidth - font.width(line)) / 2,
+                            previewTextY,
+                            previewTextColor, false);
+                    previewTextY += font.lineHeight;
+                }
+            }
+        } else if (guiType.equals(ClientConfiguration.GUItype.LARGER)) {
+            SCHOOL_PANEL_WEIGHT = 128;
+            SCHOOL_PANEL_HEIGHT = 16;
+            SCHOOL_PANEL_X = left + (panelWidth / 2) - (SCHOOL_PANEL_WEIGHT / 2);
+            SCHOOL_PANEL_Y = top + 4;
+
+            guiGraphics.blitNineSliced(TEXTURE_BUTTONS,
+                    SCHOOL_PANEL_X, SCHOOL_PANEL_Y,
+                    SCHOOL_PANEL_WEIGHT, SCHOOL_PANEL_HEIGHT,
+                    4, 4,
+                    4, 4,
+                    32, 16,
+                    64, 0);
+        }
 
         guiGraphics.drawString(font, currentSchool.getDisplayName().getString(),
                 SCHOOL_PANEL_X + (SCHOOL_PANEL_WEIGHT - font.width(currentSchool.getDisplayName().getString())) / 2,
-                SCHOOL_PANEL_Y + (SCHOOL_PANEL_HEIGHT/2) + 10,
+                (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ?
+                        SCHOOL_PANEL_Y + (SCHOOL_PANEL_HEIGHT/2) + 10 : SCHOOL_PANEL_Y + (SCHOOL_PANEL_HEIGHT/2) - 2,
                 ((int) (spellTabContentAlpha * 255.0f) << 24) | FONT_COLOR, false);
-
-        if (!selectedSchools.contains(currentSchool.getId())) {
-            Component previewOnlyText = Component.translatable("ui.unraveling_spells.school.preview_only");
-            int previewTextWidth = SCHOOL_PANEL_WEIGHT - 8;
-            int previewTextX = SCHOOL_PANEL_X + 4;
-            int previewTextY = SCHOOL_PANEL_Y + 65;
-            int previewTextColor = ((int) (spellTabContentAlpha * 255.0f) << 24)
-                    | (FONTDISABLED_COLOR & 0xFFFFFF);
-
-            for (FormattedCharSequence line : font.split(previewOnlyText, previewTextWidth)) {
-                if (previewTextY + font.lineHeight > SCHOOL_PANEL_Y + SCHOOL_PANEL_HEIGHT - 1) {
-                    break;
-                }
-
-                guiGraphics.drawString(font, line,
-                        previewTextX + (previewTextWidth - font.width(line)) / 2,
-                        previewTextY,
-                        previewTextColor, false);
-                previewTextY += font.lineHeight;
-            }
-        }
 
         //spell panel
         final int SPELL_PANEL_X = getSpellPanelX();
@@ -1357,12 +1431,16 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             guiGraphics.blit(currentSpell.getSpellIconResource(),
                     SPELL_PANEL_X+10, SPELL_PANEL_Y+10, 0, 0, 32, 32, 32, 32);
 
-            renderWrappedSpellTitle(guiGraphics, currentSpell.getDisplayName(getMinecraft().player).setStyle(Style.EMPTY));
+            if (!learnedSchools.contains(currentSchool.getId())) {
+                Component previewOnlyText = Component.literal("\n").append(Component.translatable("ui.unraveling_spells.school.preview_only").withStyle(ChatFormatting.DARK_GRAY));
+                renderWrappedSpellTitle(guiGraphics, currentSpell.getDisplayName(getMinecraft().player).setStyle(Style.EMPTY).append(previewOnlyText));
+            } else {
+                renderWrappedSpellTitle(guiGraphics, currentSpell.getDisplayName(getMinecraft().player).setStyle(Style.EMPTY));
+            }
 
             refreshSpellTextArea();
             spellTextArea.render(guiGraphics, mouseX, mouseY);
         }
-
 
         guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
@@ -1402,7 +1480,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 && blockEntity.getStoredEldritchManuscriptCount() >= learningCost
                 : blockEntity.getStoredScrollCount() >= learningCost;
         return currentSpell.getSchoolType() != null
-                && selectedSchools.contains(currentSpell.getSchoolType().getId())
+                && learnedSchools.contains(currentSpell.getSchoolType().getId())
                 && hasLearningResource
                 && !learnedSpells.contains(spellId)
                 && !SpellLearnedManager.isSpellDefaultLearned(spellId)
@@ -1415,6 +1493,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         ResourceLocation spellId = currentSpell.getSpellResource();
         boolean eldritch = SpellLearningHelper.isEldritchSpell(currentSpell);
         int learningCost = getCurrentSpellLearningCost();
+
         learnedSpells.add(spellId);
         ModMessages.sendToServer(new SpellC2SPacket(new ArrayList<>(learnedSpells)));
         getMenu().tableSlotChange(spellId, eldritch, learningCost);
@@ -1454,6 +1533,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         guiGraphics.flush();
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0.0f, 0.0f, 500.0f);
+
         guiGraphics.fill(
                 tooltipX, tooltipY,
                 tooltipX + tooltipWidth, tooltipY + tooltipHeight,
@@ -1465,6 +1545,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 tooltipY + (tooltipHeight - font.lineHeight) / 2,
                 0xFFFFFFFF,
                 false);
+
         guiGraphics.flush();
         guiGraphics.pose().popPose();
     }
@@ -1502,8 +1583,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         guiGraphics.pose().popPose();
     }
 
-    private void fillIconFromBottom(GuiGraphics guiGraphics, int x, int y,
-                                    int width, int height, float progress) {
+    private void fillIconFromBottom(GuiGraphics guiGraphics, int x, int y, int width, int height, float progress) {
         int fillHeight = Math.max(1, Math.round(height * Math.min(1.0f, progress)));
         int fillY = y + height - fillHeight;
         guiGraphics.fill(x, fillY, x + width, y + height, 0xA0FFFFFF);
@@ -1541,10 +1621,29 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         if (currentSpell == null) return Component.empty();
 
         return switch (activeSpellInfoTab) {
-            case DESCRIPTION -> Component.translatable(currentSpell.getComponentId() + ".guide");
+            case DESCRIPTION -> getCurrentSpellDescription();
             case CHARACTERISTICS -> getCurrentSpellCharacteristics();
             case CONFLICTS -> getCurrentSpellConflicts();
         };
+    }
+
+    private Component getCurrentSpellDescription() {
+        Component guide = Component.translatable(currentSpell.getComponentId() + ".guide");
+        String template = Configuration.getUniqueSpellInfo(currentSpell.getSpellResource());
+        if (template == null) {
+            return guide;
+        }
+
+        MutableComponent description = Component.empty();
+        int textStart = 0;
+        int guideMarker;
+        while ((guideMarker = template.indexOf("{guide}", textStart)) >= 0) {
+            description.append(Component.literal(template.substring(textStart, guideMarker)));
+            description.append(guide.copy());
+            textStart = guideMarker + "{guide}".length();
+        }
+        description.append(Component.literal(template.substring(textStart)));
+        return description;
     }
 
     private Component getCurrentSpellCharacteristics() {
@@ -1751,11 +1850,11 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     }
 
     private int getSpellPanelX() {
-        return left + 91;
+        return (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? left + 91 : left + 17;
     }
 
     private int getSpellPanelY() {
-        return top + 16;
+        return (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? top + 16 : top + 21;
     }
 
     private int getSpellInfoX() {
@@ -1845,6 +1944,32 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         };
 
         addRenderableWidget(questionBookmark);
+
+        BookmarkButton schoolBookmark = new BookmarkButton(left-14, top+5, BookmarkButton.BookmarkType.BLUE) {
+            @Override
+            public void onPress() {
+                learningSchoolsTab();
+            }
+
+            @Override
+            public boolean isPressed() {
+                return activeLearningTab.equals(LearningTab.SCHOOLS);
+            }
+        };
+        BookmarkButton spellBookmark = new BookmarkButton(left-14, top+22, BookmarkButton.BookmarkType.YELLOW) {
+            @Override
+            public void onPress() {
+                if (!learnedSchools.isEmpty()) { learningSpellsTab(); }
+            }
+
+            @Override
+            public boolean isPressed() {
+                return activeLearningTab.equals(LearningTab.SPELLS);
+            }
+        };
+
+        addRenderableWidget(schoolBookmark);
+        addRenderableWidget(spellBookmark);
     }
 
     private void renderSchoolDetailsWindow(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -2064,8 +2189,8 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         float windowCenterX = windowX + QUESTION_WINDOW_WIDTH / 2.0f;
         float windowCenterY = windowY + QUESTION_WINDOW_HEIGHT / 2.0f;
 
-        // Animated school titles are submitted to the font buffer glyph by glyph.
-        // Finish the underlying tab before drawing the modal layer over it.
+        // animated school titles are submitted to the font buffer glyph by glyph
+        // finish the underlying tab before drawing the modal layer over it
         guiGraphics.flush();
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0.0f, 0.0f, 400.0f);
@@ -2173,16 +2298,17 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     private synchronized void updateUIFromSyncedData() {
         refreshSchoolTypesFromConfig();
 
+        learnedSchools.clear();
+        learnedSchools.addAll(syncedSchoolIds);
+        learnedSchools.removeIf(Configuration::isSchoolLearningDisabled);
         selectedSchools.clear();
-        selectedSchools.addAll(syncedSchoolIds);
-        selectedSchools.removeIf(Configuration::isSchoolLearningDisabled);
 
         learnedSpells.clear();
         learnedSpells.addAll(syncedSpellIds);
 
         int requiredSchoolCount = getRequiredSchoolCount();
-        if (requiredSchoolCount == 0
-                || selectedSchools.size() < requiredSchoolCount) {
+        if (learnedSchools.isEmpty() || (!isConfigXPType() && (requiredSchoolCount == 0
+                || learnedSchools.size() < requiredSchoolCount))) {
             learningSchoolsTab();
         } else {
             learningSpellsTab();

@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -15,7 +16,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.block.MagicLecternBlock;
+import org.holy.unraveling_spells.block.ShrivingForgeBlock;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternTile;
+import org.holy.unraveling_spells.block.shriving_forge.ShrivingForgeTile;
 
 import static net.minecraft.world.level.block.state.BlockBehaviour.simpleCodec;
 
@@ -32,9 +35,21 @@ public class utsBlockRegistry {
                     .noOcclusion())
     );
 
+    public static final DeferredBlock<ShrivingForgeBlock> SHRIVING_FORGE_BLOCK = BLOCKS.register(
+            "shriving_forge",
+            () -> new ShrivingForgeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.ENCHANTING_TABLE)
+                    .sound(SoundType.NETHERITE_BLOCK)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+    );
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MagicLecternTile>> MAGIC_LECTERN_TILE =
             BLOCK_ENTITIES.register("magic_lectern", () ->
                     BlockEntityType.Builder.of(MagicLecternTile::new, MAGIC_LECTERN_BLOCK.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ShrivingForgeTile>> SHRIVING_FORGE_TILE =
+            BLOCK_ENTITIES.register("shriving_forge", () ->
+                    BlockEntityType.Builder.of(ShrivingForgeTile::new, SHRIVING_FORGE_BLOCK.get()).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
@@ -48,12 +63,21 @@ public class utsBlockRegistry {
                 Capabilities.ItemHandler.BLOCK,
                 MAGIC_LECTERN_TILE.get(),
                 (lectern, side) -> lectern.getItemHandler());
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                SHRIVING_FORGE_TILE.get(),
+                (forge, side) -> forge.getItemHandler());
     }
 
     public static final DeferredRegister<MapCodec<? extends Block>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.BLOCK_TYPE, Unraveling_spells.MODID);
 
-    public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<MagicLecternBlock>> SIMPLE_CODEC = REGISTRAR.register(
-            "simple",
+    public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<MagicLecternBlock>> MAGICLECTERN_CODEC = REGISTRAR.register(
+            "magic_lectern",
             () -> simpleCodec(MagicLecternBlock::new)
+    );
+
+    public static final DeferredHolder<MapCodec<? extends Block>, MapCodec<ShrivingForgeBlock>> SHRIVINGFORGE_CODEC = REGISTRAR.register(
+            "shriving_forge",
+            () -> simpleCodec(ShrivingForgeBlock::new)
     );
 }

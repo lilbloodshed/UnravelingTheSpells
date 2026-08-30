@@ -7,6 +7,7 @@ public final class ClientConfiguration {
     public static final ForgeConfigSpec.BooleanValue SHOW_SPELLS_NAME;
     public static final ForgeConfigSpec.BooleanValue SHOW_JEI_GUIDE_SPELLS;
     public static final ForgeConfigSpec.BooleanValue ENABLED_ANIMATIONS;
+    public static final ForgeConfigSpec.EnumValue<GUItype> GUI_TYPE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -14,6 +15,10 @@ public final class ClientConfiguration {
         SHOW_SPELLS_NAME = builder
                 .comment("Shows the names of spell and its descriptions if this spell is not learned")
                 .define("show_spells_name", false);
+
+        GUI_TYPE = builder
+                .comment("The parameter is responsible for changing the appearance of the Magic lectern's GUI.")
+                .defineEnum("gui_type", GUItype.CLASSIC);
 
         SHOW_JEI_GUIDE_SPELLS = builder
                 .comment("Shows spell guide descriptions in JEI information pages even if the spell is not learned")
@@ -24,6 +29,11 @@ public final class ClientConfiguration {
                 .define("enabled_animations", true);
 
         CONFIG_SPEC = builder.build();
+    }
+
+    public enum GUItype {
+        CLASSIC,
+        LARGER
     }
 
     private ClientConfiguration() {

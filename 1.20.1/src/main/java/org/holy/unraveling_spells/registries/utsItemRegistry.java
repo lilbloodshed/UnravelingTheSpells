@@ -25,4 +25,5 @@ public class utsItemRegistry {
             () -> new OblivionScrollItem(new Item.Properties().stacksTo(16).rarity(Rarity.EPIC)));
 
     public static final RegistryObject<Item> MAGIC_LECTERN_ITEM = ITEMS.register("magic_lectern", () -> new BlockItem(utsBlockRegistry.MAGIC_LECTERN_BLOCK.get(), new Item.Properties()));
+    public static final RegistryObject<Item> SHRIVING_FORGE_ITEM = ITEMS.register("shriving_forge", () -> new BlockItem(utsBlockRegistry.SHRIVING_FORGE_BLOCK.get(), new Item.Properties().rarity(Rarity.EPIC)));
 }

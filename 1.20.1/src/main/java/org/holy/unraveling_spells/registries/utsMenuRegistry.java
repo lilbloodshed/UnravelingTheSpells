@@ -10,6 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternMenu;
+import org.holy.unraveling_spells.block.shriving_forge.ShrivingForgeMenu;
 
 public class utsMenuRegistry {
     static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Unraveling_spells.MODID);
@@ -22,4 +23,6 @@ public class utsMenuRegistry {
     }
 
     public static final RegistryObject<MenuType<MagicLecternMenu>> MAGIC_TABLE_MENU = registerMenuType(MagicLecternMenu::new,"magic_table_menu");
+
+    public static final RegistryObject<MenuType<ShrivingForgeMenu>> SHRIVING_FORGE_MENU = registerMenuType(ShrivingForgeMenu::new, "shriving_forge_menu");
 }

@@ -18,6 +18,7 @@ public class utsCreativeTabRegistry {
             .icon(() -> new ItemStack(utsItemRegistry.SPELL_SCROLL.get()))
             .displayItems((enabledFeatures, entries) -> {
                 entries.accept(utsItemRegistry.MAGIC_LECTERN_ITEM.get());
+                entries.accept(utsItemRegistry.SHRIVING_FORGE_ITEM.get());
                 entries.accept(utsItemRegistry.SPELL_SCROLL.get());
                 entries.accept(utsItemRegistry.OBLIVION_SCROLL.get());
             })

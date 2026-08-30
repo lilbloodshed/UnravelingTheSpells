@@ -8,7 +8,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.holy.unraveling_spells.Unraveling_spells;
 import org.holy.unraveling_spells.block.MagicLecternBlock;
+import org.holy.unraveling_spells.block.ShrivingForgeBlock;
 import org.holy.unraveling_spells.block.magic_lectern.MagicLecternTile;
+import org.holy.unraveling_spells.block.shriving_forge.ShrivingForgeTile;
 
 public class utsBlockRegistry {
     static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Unraveling_spells.MODID);
@@ -21,6 +23,11 @@ public class utsBlockRegistry {
 
     public static final RegistryObject<Block> MAGIC_LECTERN_BLOCK = BLOCKS.register("magic_lectern", MagicLecternBlock::new);
 
+    public static final RegistryObject<Block> SHRIVING_FORGE_BLOCK = BLOCKS.register("shriving_forge", ShrivingForgeBlock::new);
+
     public static final RegistryObject<BlockEntityType<MagicLecternTile>> MAGIC_TABLE_TILE = BLOCK_ENTITIES.register("magic_lectern",
             () -> BlockEntityType.Builder.of(MagicLecternTile::new, MAGIC_LECTERN_BLOCK.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ShrivingForgeTile>> SHRIVING_FORGE_TILE = BLOCK_ENTITIES.register("shriving_forge",
+            () -> BlockEntityType.Builder.of(ShrivingForgeTile::new, SHRIVING_FORGE_BLOCK.get()).build(null));
 }
