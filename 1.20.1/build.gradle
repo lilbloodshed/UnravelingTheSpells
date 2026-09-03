@@ -1,8 +1,8 @@
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
-    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'org.spongepowered.mixin' version '0.7.38'
 }
 
 
@@ -163,12 +163,13 @@ repositories {
         url = "https://modmaven.dev"
     }
 
-    //anim api
+    /*
     maven {
         name = "holys_animation_api"
         url = "http://localhost:8080/releases"
         allowInsecureProtocol = true
     }
+     */
     maven {
         url "https://cursemaven.com"
     }
@@ -181,7 +182,7 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
     implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.5.0")) {
-        jarJar.ranged(it, "[0.5.0,)")
+        jarJar.ranged(it, "[0.5.0]")
     }
 
     compileOnly(fg.deobf("curse.maven:animlib-1623590:8500254")) {

@@ -62,7 +62,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     public static final int FONT_COLOR = 0xD9CAD5;
     public static final int FONTDISABLED_COLOR = 0x786D76;
 
-    private int panelWidth, panelHeight, left, top;
+    int panelWidth, panelHeight, left, top;
     private boolean isSyncing, isSyncingCommonConfig, isSyncingSchools, isSyncingSpells, isInitialized = false;
 
     private LearningTab activeLearningTab = LearningTab.SCHOOLS;
@@ -71,96 +71,78 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
     //************* SCHOOL *************
     private int currentIndex = 0;
-    private final int SCHOOLS_VISIBLE_COUNT = 3;
+    final int SCHOOLS_VISIBLE_COUNT = 3;
     private List<SchoolType> schoolTypes = new ArrayList<>();
     private Set<ResourceLocation> selectedSchools = new CopyOnWriteArraySet<>();
     private Set<ResourceLocation> learnedSchools = new CopyOnWriteArraySet<>();
     private final List<ResourceLocation> syncedSchoolIds = new ArrayList<>();
-    private SchoolType schoolDetailed;
+    SchoolType schoolDetailed;
 
-    private final int SCHOOLBUTTON_WIDTH = 64;
-    private final int SCHOOLBUTTON_HEIGHT = 80;
-    private final int SCHOOLBUTTON_GAP = 4;
-    private final int SCHOOLBUTTON_STEP = SCHOOLBUTTON_WIDTH + SCHOOLBUTTON_GAP;
-    private final List<SchoolButtonAnimation> schoolButtonAnimations = new ArrayList<>();
-    private final List<Button> schoolControlButtons = new ArrayList<>();
-    private int nextSchoolButtonAnimationIndex;
-    private long nextSchoolButtonAnimationAt;
-    private long schoolListAnimationFinishesAt;
-    private boolean schoolListAnimating;
+    final int SCHOOLBUTTON_WIDTH = 64;
+    final int SCHOOLBUTTON_HEIGHT = 80;
+    final int SCHOOLBUTTON_GAP = 4;
+    final int SCHOOLBUTTON_STEP = SCHOOLBUTTON_WIDTH + SCHOOLBUTTON_GAP;
+    boolean schoolListAnimating; // package-private для MagicLecternAnims
+    boolean schoolDetailsWindowOpen;
+    boolean schoolDetailsWindowClosing;
+    float schoolDetailsWindowProgress;
 
-    private static final float SCHOOL_BUTTON_ANIMATION_DURATION = 0.2f;
-    private static final long SCHOOL_BUTTON_ANIMATION_DURATION_MS = 200L;
-    private static final long SCHOOL_BUTTON_ANIMATION_STAGGER_MS = 100L;
-    private static final int SCHOOL_DETAILS_WINDOW_WIDTH = 240;
-    private static final int SCHOOL_DETAILS_WINDOW_HEIGHT = 136;
-    private static final int SCHOOL_DETAILS_SPELLS_PER_ROW = 10;
-    private static final float SCHOOL_DETAILS_ANIMATION_DURATION = 0.2f;
-    private static final long SCHOOL_DETAILS_ANIMATION_DURATION_MS = 200L;
-    private boolean schoolDetailsWindowOpen;
-    private boolean schoolDetailsWindowClosing;
-    private float schoolDetailsWindowProgress;
-    private long schoolDetailsAnimationEndsAt;
-    private int schoolDetailsAnimationId;
     //***************************************
 
     //************** SPELLS *****************
     private List<AbstractSpell> allSpells = new ArrayList<>();
     private Set<ResourceLocation> learnedSpells = new CopyOnWriteArraySet<>();
     private final List<ResourceLocation> syncedSpellIds = new ArrayList<>();
-    private AbstractSpell currentSpell = null;
-    private SchoolType currentSchool = null;
-    private int currentSpellPage = 0;
-    private final List<SpellButton> visibleSpellButtons = new ArrayList<>();
-    private ArrowButton previousSpellPageButton;
-    private ArrowButton nextSpellPageButton;
-    private ArrowButton previousSchoolSwitchButton;
-    private ArrowButton nextSchoolSwitchButton;
-    private HoldSpellLearnButton learnSpellButton;
-    private SchoolType pendingSchool;
-    private SpellListTransition spellListTransition = SpellListTransition.NONE;
-    private long spellListTransitionEndsAt;
-    private float schoolPanelYOffset;
-    private float spellTabContentAlpha = 1.0f;
-    private ScrollableTextArea spellTextArea;
+    AbstractSpell currentSpell = null;
+    SchoolType currentSchool = null;
+    int currentSpellPage = 0;
+    final List<SpellButton> visibleSpellButtons = new ArrayList<>();
+    ArrowButton previousSpellPageButton;
+    ArrowButton nextSpellPageButton;
+    ArrowButton previousSchoolSwitchButton;
+    ArrowButton nextSchoolSwitchButton;
+    HoldSpellLearnButton learnSpellButton;
+    SchoolType pendingSchool;
+    SpellListTransition spellListTransition = SpellListTransition.NONE;
+    float schoolPanelYOffset;
+    float spellTabContentAlpha = 1.0f;
+    ScrollableTextArea spellTextArea;
     private SpellInfoTab activeSpellInfoTab = SpellInfoTab.DESCRIPTION;
     private AbstractSpell spellTextAreaSource;
     private SpellInfoTab spellTextAreaTabSource;
     private boolean spellTextAreaShiftSource;
 
-    private static final int SPELLS_PER_PAGE = 10;
-    private static final int SPELL_BUTTON_SIZE = 20;
-    private static final int SPELL_LIST_ANIMATION_OFFSET = 10;
-    private static final float SPELL_LIST_ANIMATION_DURATION = 0.2f;
-    private static final long SPELL_LIST_ANIMATION_DURATION_MS = 250L;
-    private static final float SPELL_LIST_FADE_DURATION = 0.20f;
-    private static final float SPELL_ARROW_FADE_DURATION = 0.24f;
-    private static final float SCHOOL_PANEL_JUMP_HEIGHT = 5.0f;
-    private static final float SCHOOL_PANEL_JUMP_DURATION = 0.12f;
-    private static int SPELL_PANEL_WIDTH = 184;
-    private static final int SPELL_PANEL_HEIGHT = 108;
-    private static final int SPELL_INFO_X_OFFSET = 28;
-    private static final int SPELL_INFO_Y_OFFSET = 48;
-    private static final String SPELL_CONFLICT_LINK_PREFIX = "unraveling_spells:open_spell/";
+    static final int SPELLS_PER_PAGE = 10;
+    static final int SPELL_BUTTON_SIZE = 20;
+    static final int SPELL_LIST_ANIMATION_OFFSET = 10;
+    static final float SPELL_LIST_ANIMATION_DURATION = 0.2f;
+    static final long SPELL_LIST_ANIMATION_DURATION_MS = 250L;
+    static final float SPELL_LIST_FADE_DURATION = 0.20f;
+    static final float SPELL_ARROW_FADE_DURATION = 0.24f;
+    static final float SCHOOL_PANEL_JUMP_HEIGHT = 5.0f;
+    static final float SCHOOL_PANEL_JUMP_DURATION = 0.12f;
+    static int SPELL_PANEL_WIDTH = 184;
+    static final int SPELL_PANEL_HEIGHT = 108;
+    static final int SPELL_INFO_X_OFFSET = 28;
+    static final int SPELL_INFO_Y_OFFSET = 48;
+    static final String SPELL_CONFLICT_LINK_PREFIX = "unraveling_spells:open_spell/";
     //***************************************
 
     private static final int QUESTION_WINDOW_WIDTH = 240;
     private static final int QUESTION_WINDOW_HEIGHT = 150;
-    private static final float QUESTION_WINDOW_ANIMATION_DURATION = 0.2f;
-    private static final long QUESTION_WINDOW_ANIMATION_DURATION_MS = 200L;
-    private boolean questionWindowOpen;
-    private boolean questionWindowClosing;
-    private float questionWindowProgress;
-    private long questionWindowAnimationEndsAt;
-    private int questionWindowAnimationId;
-    private ScrollableTextArea questionTextArea;
+    boolean questionWindowOpen;
+    boolean questionWindowClosing;
+    float questionWindowProgress;
+    ScrollableTextArea questionTextArea;
+
+    private final MagicLecternAnims anims = new MagicLecternAnims(this);
 
     private enum LearningTab {
         SCHOOLS,
         SPELLS
     }
 
-    private enum SpellListTransition {
+    enum SpellListTransition {
         NONE,
         EXITING,
         ENTERING
@@ -171,8 +153,6 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         CHARACTERISTICS,
         CONFLICTS
     }
-
-    private record SchoolButtonAnimation(Button schoolButton, Button detailsButton, int targetSchoolX, int targetDetailsX) { }
 
     public MagicLecternScreen(MagicLecternMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -191,19 +171,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         super.init();
         clearWidgets();
         questionWindowOpen = false;
-        questionWindowClosing = false;
-        questionWindowProgress = 0.0f;
-        questionWindowAnimationId++;
         schoolDetailed = null;
         schoolDetailsWindowOpen = false;
-        schoolDetailsWindowClosing = false;
-        schoolDetailsWindowProgress = 0.0f;
-        schoolDetailsAnimationId++;
-        spellTabContentAlpha = 1.0f;
         activeSpellInfoTab = SpellInfoTab.DESCRIPTION;
         spellTextAreaSource = null;
         spellTextAreaTabSource = null;
         spellTextAreaShiftSource = false;
+
+        anims.init();
 
         this.inventoryLabelY-= 1000;
         this.blockEntity = getMenu().blockEntity;
@@ -238,18 +213,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
     @Override
     public void removed() {
-        AnimationCompat.clear(this);
+        anims.removed();
         super.removed();
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int p_283661_, int p_281248_, float p_281886_) {
-        updateSchoolListAnimation();
-        updateSpellListTransition();
-        AnimationCompat.update(this);
-        updateSchoolDetailsWindowAnimation();
-        updateQuestionWindowAnimation();
-        super.render(guiGraphics, p_283661_, p_281248_, p_281886_);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float ticks) {
+        anims.render(guiGraphics, mouseX, mouseY, ticks);
+        super.render(guiGraphics, mouseX, mouseY, ticks);
 
         if (isSyncing) {
             guiGraphics.drawString(font, "Synchronization...",
@@ -258,14 +229,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         }
 
         renderSpellLearningFill(guiGraphics);
-        renderSpellLearningCostTooltip(guiGraphics, p_283661_, p_281248_);
+        renderSpellLearningCostTooltip(guiGraphics, mouseX, mouseY);
 
         if (schoolDetailsWindowOpen) {
-            renderSchoolDetailsWindow(guiGraphics, p_283661_, p_281248_);
+            renderSchoolDetailsWindow(guiGraphics, mouseX, mouseY);
         }
 
         if (questionWindowOpen) {
-            renderQuestionWindow(guiGraphics, p_283661_, p_281248_);
+            renderQuestionWindow(guiGraphics, mouseX, mouseY);
         }
 
         if (isDevEnabled) {
@@ -285,14 +256,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         if (schoolDetailsWindowOpen) {
             if (button == 0 && (isSchoolDetailsCloseButtonHovered(mouseX, mouseY)
                     || !isInsideSchoolDetailsWindow(mouseX, mouseY))) {
-                closeSchoolDetails();
+                anims.closeSchoolDetails();
             }
             return true;
         }
         if (questionWindowOpen) {
             if (button == 0 && (isQuestionCloseButtonHovered(mouseX, mouseY)
                     || !isInsideQuestionWindow(mouseX, mouseY))) {
-                closeQuestionWindow();
+                anims.closeQuestionWindow();
             }
             if (!questionWindowClosing && questionTextArea != null) {
                 questionTextArea.mouseClicked(mouseX, mouseY, button);
@@ -359,13 +330,13 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (schoolDetailsWindowOpen) {
             if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-                closeSchoolDetails();
+                anims.closeSchoolDetails();
             }
             return true;
         }
         if (questionWindowOpen) {
             if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-                closeQuestionWindow();
+                anims.closeQuestionWindow();
             }
             return true;
         }
@@ -392,17 +363,15 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     // SCHOOL TAB ********************************************************
     //
 
-    private void learningSchoolsTab() {
+    void learningSchoolsTab() {
         learningSchoolsTab(false);
     }
 
-    private void learningSchoolsTab(boolean allowAnimation) {
+    void learningSchoolsTab(boolean allowAnimation) {
         activeLearningTab = LearningTab.SCHOOLS;
         clearWidgets();
         learnSpellButton = null;
-        schoolButtonAnimations.clear();
-        schoolControlButtons.clear();
-        schoolListAnimating = false;
+        anims.resetSchoolButtonAnimation();
 
         int visibleSchoolCount = Math.min(SCHOOLS_VISIBLE_COUNT, schoolTypes.size() - currentIndex);
         int lastSchoolButtonX = visibleSchoolCount > 0
@@ -457,20 +426,20 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
                     if (isSchoolContains()) {
                         selectedSchools.remove(schoolId);
-                        AnimButtonYTo(this, BUTTON_BASE_Y);
-                        AnimButtonYTo(detailsButtonRef[0], BUTTON_BASE_Y + 60);
+                        anims.animButtonYTo(this, BUTTON_BASE_Y);
+                        anims.animButtonYTo(detailsButtonRef[0], BUTTON_BASE_Y + 60);
                     } else {
                         if (isConfigXPType()
                                 && (Configuration.isSchoolXpBulkLearningAllowed() || selectedSchools.isEmpty())
                                 && selectedSchools.size() < getRemainingSchoolSlots()) {
                             selectedSchools.add(schoolId);
-                            AnimButtonYTo(this, BUTTON_SELECTED_Y);
-                            AnimButtonYTo(detailsButtonRef[0], BUTTON_SELECTED_Y + 60);
+                            anims.animButtonYTo(this, BUTTON_SELECTED_Y);
+                            anims.animButtonYTo(detailsButtonRef[0], BUTTON_SELECTED_Y + 60);
                         } else if (!isConfigXPType()){
                             if (selectedSchools.size() < getRemainingSchoolSlots()) {
                                 selectedSchools.add(schoolId);
-                                AnimButtonYTo(this, BUTTON_SELECTED_Y);
-                                AnimButtonYTo(detailsButtonRef[0], BUTTON_SELECTED_Y + 60);
+                                anims.animButtonYTo(this, BUTTON_SELECTED_Y);
+                                anims.animButtonYTo(detailsButtonRef[0], BUTTON_SELECTED_Y + 60);
                             }
                         }
                     }
@@ -537,7 +506,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
                 @Override
                 public void onPress() {
-                    openSchoolDetails(school);
+                    anims.openSchoolDetails(school);
                 }
             };
             detailsButtonRef[0] = detailsButton;
@@ -545,11 +514,11 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             if (animateSchoolButtons) {
                 schoolButton.setAlpha(0.0f);
                 detailsButton.setAlpha(0.0f);
-                schoolButtonAnimations.add(new SchoolButtonAnimation(
+                anims.addSchoolButtonAnimation(
                         schoolButton,
                         detailsButton,
                         BUTTON_X,
-                        BUTTON_X + (SCHOOLBUTTON_WIDTH - 58) / 2));
+                        BUTTON_X + (SCHOOLBUTTON_WIDTH - 58) / 2);
             }
 
             addRenderableWidget(schoolButton);
@@ -661,10 +630,10 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             nextButton.setAlpha(0.0f);
             backButton.setAlpha(0.0f);
             confirmButton.setAlpha(0.0f);
-            schoolControlButtons.add(nextButton);
-            schoolControlButtons.add(backButton);
-            schoolControlButtons.add(confirmButton);
-            startSchoolListAnimation();
+            anims.addSchoolControlButton(nextButton);
+            anims.addSchoolControlButton(backButton);
+            anims.addSchoolControlButton(confirmButton);
+            anims.startSchoolListAnimation();
         }
     }
 
@@ -719,7 +688,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     // SPELL TAB ********************************************************
     //
 
-    private void learningSpellsTab() {
+    void learningSpellsTab() {
         activeLearningTab = LearningTab.SPELLS;
         clearWidgets();
         visibleSpellButtons.clear();
@@ -773,7 +742,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             @Override
             public void onPress() {
                 if (isActive()) {
-                    switchSchoolWithSpellListAnimation(learnedSchoolTypes.get(currentSchoolIndex - 1));
+                    anims.switchSchoolWithSpellListAnimation(learnedSchoolTypes.get(currentSchoolIndex - 1));
                 }
             }
 
@@ -788,7 +757,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
             @Override
             public void onPress() {
                 if (isActive()) {
-                    switchSchoolWithSpellListAnimation(learnedSchoolTypes.get(currentSchoolIndex + 1));
+                    anims.switchSchoolWithSpellListAnimation(learnedSchoolTypes.get(currentSchoolIndex + 1));
                 }
             }
 
@@ -994,338 +963,34 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     //
     // ANIMATIONS *************************************************************
     //
-
-    private int getSchoolButtonX(int positionOnPage) {
+    int getSchoolButtonX(int positionOnPage) {
         return Math.round(left + ((float) panelWidth / 2)
                 - (SCHOOLBUTTON_STEP * ((float) SCHOOLS_VISIBLE_COUNT / 2)))
                 + SCHOOLBUTTON_STEP * positionOnPage;
     }
 
-    private void startSchoolListAnimation() {
-        if (!AnimationCompat.isEnabled() || schoolButtonAnimations.isEmpty()) {
-            finishSchoolListAnimation();
-            return;
-        }
-
-        schoolListAnimating = true;
-        nextSchoolButtonAnimationIndex = 0;
-        long now = Util.getMillis();
-        nextSchoolButtonAnimationAt = now;
-        schoolListAnimationFinishesAt = now
-                + (schoolButtonAnimations.size() - 1L) * SCHOOL_BUTTON_ANIMATION_STAGGER_MS
-                + SCHOOL_BUTTON_ANIMATION_DURATION_MS;
-
-        for (Button controlButton : schoolControlButtons) {
-            AnimationCompat.animate(this,
-                    0.0f, 1.0f,
-                    SCHOOL_BUTTON_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                    controlButton::setAlpha);
-        }
+    int getSpellPanelX() {
+        return (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? left + 91 : left + 17;
     }
 
-    private void updateSchoolListAnimation() {
-        if (!schoolListAnimating) return;
-
-        if (!AnimationCompat.isEnabled()) {
-            finishSchoolListAnimation();
-            return;
-        }
-
-        long now = Util.getMillis();
-        while (nextSchoolButtonAnimationIndex < schoolButtonAnimations.size()
-                && now >= nextSchoolButtonAnimationAt) {
-            SchoolButtonAnimation animation = schoolButtonAnimations.get(nextSchoolButtonAnimationIndex);
-
-            AnimationCompat.animate(this,
-                    animation.schoolButton().getX(), animation.targetSchoolX(),
-                    SCHOOL_BUTTON_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                    x -> animation.schoolButton().setX(Math.round(x)));
-            AnimationCompat.animate(this,
-                    animation.detailsButton().getX(), animation.targetDetailsX(),
-                    SCHOOL_BUTTON_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                    x -> animation.detailsButton().setX(Math.round(x)));
-            AnimationCompat.animate(this,
-                    0.0f, 1.0f,
-                    SCHOOL_BUTTON_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                    animation.schoolButton()::setAlpha);
-            AnimationCompat.animate(this,
-                    0.0f, 1.0f,
-                    SCHOOL_BUTTON_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                    animation.detailsButton()::setAlpha);
-
-            nextSchoolButtonAnimationIndex++;
-            nextSchoolButtonAnimationAt += SCHOOL_BUTTON_ANIMATION_STAGGER_MS;
-        }
-
-        if (nextSchoolButtonAnimationIndex == schoolButtonAnimations.size()
-                && now >= schoolListAnimationFinishesAt) {
-            finishSchoolListAnimation();
-        }
+    int getSpellPanelY() {
+        return (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? top + 16 : top + 21;
     }
 
-    private void finishSchoolListAnimation() {
-        for (SchoolButtonAnimation animation : schoolButtonAnimations) {
-            animation.schoolButton().setX(animation.targetSchoolX());
-            animation.schoolButton().setAlpha(1.0f);
-            animation.detailsButton().setX(animation.targetDetailsX());
-            animation.detailsButton().setAlpha(1.0f);
-        }
-        for (Button controlButton : schoolControlButtons) {
-            controlButton.setAlpha(1.0f);
-        }
-        schoolListAnimating = false;
+    int getSchoolDetailsWindowX() {
+        return (width - 240) / 2; // SCHOOL_DETAILS_WINDOW_WIDTH = 240
     }
 
-    private void AnimButtonYTo(Button button, int targetY) {
-        if (button == null) return;
-        if (Screen.hasShiftDown() || !AnimationCompat.isEnabled()) {
-            button.setY(targetY);
-            return;
-        }
-        AnimationCompat.animate(this, button.getY(), targetY, 0.35f,
-                AnimationCompat.Easing.EASE_OUT, y -> button.setY(Math.round(y)));
+    int getSchoolDetailsWindowY() {
+        return (height - 136) / 2; // SCHOOL_DETAILS_WINDOW_HEIGHT = 136
     }
 
-    private void openQuestionWindow() {
-        questionWindowOpen = true;
-        questionWindowClosing = false;
-        int animationId = ++questionWindowAnimationId;
-
-        if (questionTextArea != null) {
-            questionTextArea.setText(Component.translatable("ui.unraveling_spells.question.text"));
-            questionTextArea.resetScroll();
-        }
-
-        if (Screen.hasShiftDown() || !AnimationCompat.isEnabled()) {
-            questionWindowProgress = 1.0f;
-            return;
-        }
-
-        questionWindowProgress = 0.0f;
-        AnimationCompat.animate(this,
-                0.0f, 1.0f,
-                QUESTION_WINDOW_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                progress -> {
-                    if (animationId == questionWindowAnimationId) {
-                        questionWindowProgress = progress;
-                    }
-                });
+    int getQuestionWindowX() {
+        return (width - QUESTION_WINDOW_WIDTH) / 2;
     }
 
-    private void closeQuestionWindow() {
-        if (!questionWindowOpen || questionWindowClosing) {
-            return;
-        }
-
-        int animationId = ++questionWindowAnimationId;
-        if (Screen.hasShiftDown() || !AnimationCompat.isEnabled()) {
-            finishClosingQuestionWindow(animationId);
-            return;
-        }
-
-        questionWindowClosing = true;
-        questionWindowAnimationEndsAt = Util.getMillis() + QUESTION_WINDOW_ANIMATION_DURATION_MS;
-        AnimationCompat.animate(this,
-                questionWindowProgress, 0.0f,
-                QUESTION_WINDOW_ANIMATION_DURATION, AnimationCompat.Easing.EASE_IN,
-                progress -> {
-                    if (animationId == questionWindowAnimationId) {
-                        questionWindowProgress = progress;
-                    }
-                });
-    }
-
-    private void updateQuestionWindowAnimation() {
-        if (questionWindowClosing
-                && Util.getMillis() >= questionWindowAnimationEndsAt) {
-            finishClosingQuestionWindow(questionWindowAnimationId);
-        }
-    }
-
-    private void finishClosingQuestionWindow(int animationId) {
-        if (animationId != questionWindowAnimationId) {
-            return;
-        }
-
-        questionWindowProgress = 0.0f;
-        questionWindowClosing = false;
-        questionWindowOpen = false;
-    }
-
-    private void openSchoolDetails(SchoolType school) {
-        if (school == null || schoolListAnimating) {
-            return;
-        }
-
-        schoolDetailed = school;
-        schoolDetailsWindowOpen = true;
-        schoolDetailsWindowClosing = false;
-        questionWindowOpen = false;
-        int animationId = ++schoolDetailsAnimationId;
-
-        if (Screen.hasShiftDown() || !AnimationCompat.isEnabled()) {
-            schoolDetailsWindowProgress = 1.0f;
-            return;
-        }
-
-        schoolDetailsWindowProgress = 0.0f;
-        AnimationCompat.animate(this,
-                0.0f, 1.0f,
-                SCHOOL_DETAILS_ANIMATION_DURATION, AnimationCompat.Easing.EASE_OUT,
-                progress -> {
-                    if (animationId == schoolDetailsAnimationId) {
-                        schoolDetailsWindowProgress = progress;
-                    }
-                });
-    }
-
-    private void closeSchoolDetails() {
-        if (!schoolDetailsWindowOpen || schoolDetailsWindowClosing) {
-            return;
-        }
-
-        int animationId = ++schoolDetailsAnimationId;
-        if (Screen.hasShiftDown() || !AnimationCompat.isEnabled()) {
-            finishClosingSchoolDetails(animationId);
-            return;
-        }
-
-        schoolDetailsWindowClosing = true;
-        schoolDetailsAnimationEndsAt = Util.getMillis() + SCHOOL_DETAILS_ANIMATION_DURATION_MS;
-        AnimationCompat.animate(this,
-                schoolDetailsWindowProgress, 0.0f,
-                SCHOOL_DETAILS_ANIMATION_DURATION, AnimationCompat.Easing.EASE_IN,
-                progress -> {
-                    if (animationId == schoolDetailsAnimationId) {
-                        schoolDetailsWindowProgress = progress;
-                    }
-                });
-    }
-
-    private void updateSchoolDetailsWindowAnimation() {
-        if (schoolDetailsWindowClosing
-                && Util.getMillis() >= schoolDetailsAnimationEndsAt) {
-            finishClosingSchoolDetails(schoolDetailsAnimationId);
-        }
-    }
-
-    private void finishClosingSchoolDetails(int animationId) {
-        if (animationId != schoolDetailsAnimationId) {
-            return;
-        }
-
-        schoolDetailsWindowProgress = 0.0f;
-        schoolDetailsWindowClosing = false;
-        schoolDetailsWindowOpen = false;
-        schoolDetailed = null;
-    }
-
-    private void switchSchoolWithSpellListAnimation(SchoolType targetSchool) {
-        if (targetSchool == null || targetSchool == currentSchool ||
-                spellListTransition != SpellListTransition.NONE) return;
-
-        if (Screen.hasShiftDown() || !AnimationCompat.isEnabled()) {
-            currentSchool = targetSchool;
-            currentSpellPage = 0;
-            currentSpell = null;
-            learningSpellsTab();
-            return;
-        }
-
-        pendingSchool = targetSchool;
-        spellListTransition = SpellListTransition.EXITING;
-        spellListTransitionEndsAt = Util.getMillis() + SPELL_LIST_ANIMATION_DURATION_MS;
-        if (previousSchoolSwitchButton != null) previousSchoolSwitchButton.active = false;
-        if (nextSchoolSwitchButton != null) nextSchoolSwitchButton.active = false;
-        fadeOutSpellPageButtons();
-
-        AnimationCompat.animate(this,
-                schoolPanelYOffset, -SCHOOL_PANEL_JUMP_HEIGHT,
-                SCHOOL_PANEL_JUMP_DURATION, AnimationCompat.Easing.EASE_OUT,
-                value -> schoolPanelYOffset = value);
-
-        for (SpellButton button : visibleSpellButtons) {
-            button.active = false;
-            AnimationCompat.animate(this,
-                    button.getY(), button.getY() + SPELL_LIST_ANIMATION_OFFSET,
-                    SPELL_LIST_ANIMATION_DURATION, AnimationCompat.Easing.EASE_IN,
-                    value -> button.setY(Math.round(value)));
-            AnimationCompat.animate(this,
-                    1.0f, 0.0f,
-                    SPELL_LIST_FADE_DURATION, AnimationCompat.Easing.LINEAR,
-                    button::setAlpha);
-        }
-    }
-
-    private void fadeOutSpellPageButtons() {
-        if (previousSpellPageButton != null) {
-            previousSpellPageButton.active = false;
-            AnimationCompat.animate(this,
-                    1.0f, 0.0f,
-                    SPELL_ARROW_FADE_DURATION, AnimationCompat.Easing.EASE_IN,
-                    previousSpellPageButton::setAlpha);
-        }
-        if (nextSpellPageButton != null) {
-            nextSpellPageButton.active = false;
-            AnimationCompat.animate(this,
-                    1.0f, 0.0f,
-                    SPELL_ARROW_FADE_DURATION, AnimationCompat.Easing.EASE_IN,
-                    nextSpellPageButton::setAlpha);
-        }
-    }
-
-    private void updateSpellListTransition() {
-        if (spellListTransition != SpellListTransition.NONE && !AnimationCompat.isEnabled()) {
-            if (pendingSchool != null) {
-                currentSchool = pendingSchool;
-                pendingSchool = null;
-                currentSpellPage = 0;
-                currentSpell = null;
-            }
-            spellListTransition = SpellListTransition.NONE;
-            schoolPanelYOffset = 0.0f;
-            learningSpellsTab();
-            return;
-        }
-
-        if (spellListTransition == SpellListTransition.NONE ||
-                Util.getMillis() < spellListTransitionEndsAt) return;
-
-        int rowY = top + panelHeight - SPELL_BUTTON_SIZE - 7;
-
-        if (spellListTransition == SpellListTransition.EXITING) {
-            for (SpellButton button : visibleSpellButtons) {
-                button.setY(rowY + SPELL_LIST_ANIMATION_OFFSET);
-                button.setAlpha(0.0f);
-            }
-
-            currentSchool = pendingSchool;
-            pendingSchool = null;
-            currentSpellPage = 0;
-            currentSpell = null;
-            spellListTransition = SpellListTransition.ENTERING;
-            spellListTransitionEndsAt = Util.getMillis() + SPELL_LIST_ANIMATION_DURATION_MS;
-            schoolPanelYOffset = -SCHOOL_PANEL_JUMP_HEIGHT;
-            learningSpellsTab();
-            AnimationCompat.animate(this,
-                    -SCHOOL_PANEL_JUMP_HEIGHT, 0.0f,
-                    SCHOOL_PANEL_JUMP_DURATION, AnimationCompat.Easing.EASE_OUT,
-                    value -> schoolPanelYOffset = value);
-            return;
-        }
-
-        for (SpellButton button : visibleSpellButtons) {
-            button.setY(rowY);
-            button.setAlpha(1.0f);
-            button.active = true;
-        }
-
-        spellListTransition = SpellListTransition.NONE;
-        schoolPanelYOffset = 0.0f;
-        if (previousSpellPageButton != null) previousSpellPageButton.active = true;
-        if (nextSpellPageButton != null) nextSpellPageButton.active = true;
-        if (previousSchoolSwitchButton != null) previousSchoolSwitchButton.active = true;
-        if (nextSchoolSwitchButton != null) nextSchoolSwitchButton.active = true;
+    int getQuestionWindowY() {
+        return (height - QUESTION_WINDOW_HEIGHT) / 2;
     }
 
     //
@@ -1849,14 +1514,6 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 && spellTextArea != null;
     }
 
-    private int getSpellPanelX() {
-        return (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? left + 91 : left + 17;
-    }
-
-    private int getSpellPanelY() {
-        return (guiType.equals(ClientConfiguration.GUItype.CLASSIC)) ? top + 16 : top + 21;
-    }
-
     private int getSpellInfoX() {
         return getSpellPanelX() + SPELL_INFO_X_OFFSET;
     }
@@ -1939,7 +1596,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         BookmarkButton questionBookmark = new BookmarkButton(nextBookmarkX, top + panelHeight - 1, BookmarkButton.BookmarkType.RED) {
             @Override
             public void onPress() {
-                openQuestionWindow();
+                anims.openQuestionWindow();
             }
         };
 
@@ -1982,15 +1639,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         int contentAlpha = Math.round(progress * 255.0f);
         int windowX = getSchoolDetailsWindowX();
         int windowY = getSchoolDetailsWindowY();
-        float windowCenterX = windowX + SCHOOL_DETAILS_WINDOW_WIDTH / 2.0f;
-        float windowCenterY = windowY + SCHOOL_DETAILS_WINDOW_HEIGHT / 2.0f;
+        float windowCenterX = windowX + 240 / 2.0f;
+        float windowCenterY = windowY + 136 / 2.0f;
         List<AbstractSpell> schoolSpells = allSpells.stream()
                 .filter(spell -> spell.getSchoolType() != null)
                 .filter(spell -> schoolDetailed.getId().equals(spell.getSchoolType().getId()))
                 .toList();
         AbstractSpell hoveredSpell = null;
 
-        // Finish animated school titles before placing the modal above them.
         guiGraphics.flush();
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0.0f, 0.0f, 400.0f);
@@ -2006,7 +1662,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
 
         guiGraphics.blitNineSliced(TEXTURE_BUTTONS,
                 windowX, windowY,
-                SCHOOL_DETAILS_WINDOW_WIDTH, SCHOOL_DETAILS_WINDOW_HEIGHT,
+                240, 136,
                 10, 10,
                 10, 10,
                 56, 32,
@@ -2016,24 +1672,21 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 "ui.unraveling_spells.school.spells",
                 schoolDetailed.getDisplayName());
         guiGraphics.drawCenteredString(font, title,
-                windowX + SCHOOL_DETAILS_WINDOW_WIDTH / 2,
+                windowX + 240 / 2,
                 windowY + 12,
                 (contentAlpha << 24) | FONT_COLOR);
 
         int gridY = windowY + 34;
         for (int index = 0; index < schoolSpells.size(); index++) {
-            int row = index / SCHOOL_DETAILS_SPELLS_PER_ROW;
-            int positionInRow = index % SCHOOL_DETAILS_SPELLS_PER_ROW;
-            int spellsBeforeRow = row * SCHOOL_DETAILS_SPELLS_PER_ROW;
-            int spellsInRow = Math.min(
-                    SCHOOL_DETAILS_SPELLS_PER_ROW,
-                    schoolSpells.size() - spellsBeforeRow);
-            int rowX = windowX
-                    + (SCHOOL_DETAILS_WINDOW_WIDTH - spellsInRow * SPELL_BUTTON_SIZE) / 2;
-            int spellX = rowX + positionInRow * SPELL_BUTTON_SIZE;
-            int spellY = gridY + row * SPELL_BUTTON_SIZE;
+            int row = index / 10; // SCHOOL_DETAILS_SPELLS_PER_ROW
+            int positionInRow = index % 10;
+            int spellsBeforeRow = row * 10;
+            int spellsInRow = Math.min(10, schoolSpells.size() - spellsBeforeRow);
+            int rowX = windowX + (240 - spellsInRow * 20) / 2;
+            int spellX = rowX + positionInRow * 20;
+            int spellY = gridY + row * 20;
 
-            if (spellY + SPELL_BUTTON_SIZE > windowY + SCHOOL_DETAILS_WINDOW_HEIGHT - 5) {
+            if (spellY + 20 > windowY + 136 - 5) {
                 break;
             }
 
@@ -2052,21 +1705,21 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 guiGraphics.blit(TEXTURE_BUTTONS,
                         spellX, spellY - 1,
                         0, 148,
-                        SPELL_BUTTON_SIZE, SPELL_BUTTON_SIZE + 2);
+                        20, 22);
                 hoveredSpell = spell;
             } else {
                 guiGraphics.blit(TEXTURE_BUTTONS,
                         spellX, spellY,
                         0, 128,
-                        SPELL_BUTTON_SIZE, SPELL_BUTTON_SIZE);
+                        20, 20);
             }
         }
 
         if (schoolSpells.isEmpty()) {
             guiGraphics.drawCenteredString(font,
                     Component.translatable("ui.unraveling_spells.no_spells"),
-                    windowX + SCHOOL_DETAILS_WINDOW_WIDTH / 2,
-                    windowY + SCHOOL_DETAILS_WINDOW_HEIGHT / 2,
+                    windowX + 240 / 2,
+                    windowY + 136 / 2,
                     (contentAlpha << 24) | FONTDISABLED_COLOR);
         }
 
@@ -2074,7 +1727,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
                 ? 0xFFFFFF
                 : FONTDISABLED_COLOR;
         guiGraphics.drawCenteredString(font, "×",
-                windowX + SCHOOL_DETAILS_WINDOW_WIDTH - 12,
+                windowX + 240 - 12,
                 windowY + 9,
                 (contentAlpha << 24) | closeColor);
 
@@ -2147,32 +1800,21 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         return tooltip;
     }
 
-    private int getSchoolDetailsWindowX() {
-        return (width - SCHOOL_DETAILS_WINDOW_WIDTH) / 2;
-    }
-
-    private int getSchoolDetailsWindowY() {
-        return (height - SCHOOL_DETAILS_WINDOW_HEIGHT) / 2;
-    }
-
     private boolean isInsideSchoolDetailsWindow(double mouseX, double mouseY) {
         int windowX = getSchoolDetailsWindowX();
         int windowY = getSchoolDetailsWindowY();
-        return mouseX >= windowX && mouseX < windowX + SCHOOL_DETAILS_WINDOW_WIDTH
-                && mouseY >= windowY && mouseY < windowY + SCHOOL_DETAILS_WINDOW_HEIGHT;
+        return mouseX >= windowX && mouseX < windowX + 240
+                && mouseY >= windowY && mouseY < windowY + 136;
     }
 
     private boolean isSchoolDetailsCloseButtonHovered(double mouseX, double mouseY) {
-        int closeX = getSchoolDetailsWindowX() + SCHOOL_DETAILS_WINDOW_WIDTH - 19;
+        int closeX = getSchoolDetailsWindowX() + 240 - 19;
         int closeY = getSchoolDetailsWindowY() + 5;
         return mouseX >= closeX && mouseX < closeX + 14
                 && mouseY >= closeY && mouseY < closeY + 14;
     }
 
-    private boolean isScaledSchoolDetailsSpellHovered(double mouseX, double mouseY,
-                                                      int spellX, int spellY,
-                                                      float scale,
-                                                      float centerX, float centerY) {
+    private boolean isScaledSchoolDetailsSpellHovered(double mouseX, double mouseY, int spellX, int spellY, float scale, float centerX, float centerY) {
         float renderedX = centerX + (spellX - centerX) * scale;
         float renderedY = centerY + (spellY - centerY) * scale;
         float renderedSize = SPELL_BUTTON_SIZE * scale;
@@ -2238,14 +1880,6 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         guiGraphics.flush();
         guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         guiGraphics.pose().popPose();
-    }
-
-    private int getQuestionWindowX() {
-        return (width - QUESTION_WINDOW_WIDTH) / 2;
-    }
-
-    private int getQuestionWindowY() {
-        return (height - QUESTION_WINDOW_HEIGHT) / 2;
     }
 
     private boolean isInsideQuestionWindow(double mouseX, double mouseY) {
