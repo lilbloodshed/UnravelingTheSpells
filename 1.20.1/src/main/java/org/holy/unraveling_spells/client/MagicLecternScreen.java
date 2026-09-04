@@ -82,7 +82,7 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     final int SCHOOLBUTTON_HEIGHT = 80;
     final int SCHOOLBUTTON_GAP = 4;
     final int SCHOOLBUTTON_STEP = SCHOOLBUTTON_WIDTH + SCHOOLBUTTON_GAP;
-    boolean schoolListAnimating; // package-private для MagicLecternAnims
+    boolean schoolListAnimating;
     boolean schoolDetailsWindowOpen;
     boolean schoolDetailsWindowClosing;
     float schoolDetailsWindowProgress;
@@ -116,11 +116,8 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
     static final int SPELL_BUTTON_SIZE = 20;
     static final int SPELL_LIST_ANIMATION_OFFSET = 10;
     static final float SPELL_LIST_ANIMATION_DURATION = 0.2f;
-    static final long SPELL_LIST_ANIMATION_DURATION_MS = 250L;
     static final float SPELL_LIST_FADE_DURATION = 0.20f;
     static final float SPELL_ARROW_FADE_DURATION = 0.24f;
-    static final float SCHOOL_PANEL_JUMP_HEIGHT = 5.0f;
-    static final float SCHOOL_PANEL_JUMP_DURATION = 0.12f;
     static int SPELL_PANEL_WIDTH = 184;
     static final int SPELL_PANEL_HEIGHT = 108;
     static final int SPELL_INFO_X_OFFSET = 28;
@@ -1187,11 +1184,14 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         int cost = getCurrentSpellLearningCost();
         Component costText = Component.translatable(
                 "ui.unraveling_spells.tooltip.learning_cost", cost);
+        Component conflictText = Component.translatable(
+                "ui.unraveling_spells.tooltip.learning_conflict", cost).withStyle(ChatFormatting.RED);
         ItemStack resource = SpellLearningHelper.isEldritchSpell(currentSpell)
                 ? new ItemStack(ItemRegistry.ELDRITCH_PAGE.get())
                 : new ItemStack(utsItemRegistry.SPELL_SCROLL.get());
         int tooltipWidth = font.width(costText) + 28;
-        int tooltipHeight = 22;
+        int tooltipWidthConflict = font.width(conflictText) + 5;
+        int tooltipHeight = 20;
         int tooltipX = Math.max(4, Math.min(mouseX + 4, width - tooltipWidth - 4));
         int tooltipY = Math.max(4, Math.min(mouseY - 8, height - tooltipHeight - 4));
 
@@ -1199,17 +1199,30 @@ public class MagicLecternScreen extends AbstractContainerScreen<MagicLecternMenu
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0.0f, 0.0f, 500.0f);
 
-        guiGraphics.fill(
-                tooltipX, tooltipY,
-                tooltipX + tooltipWidth, tooltipY + tooltipHeight,
-                0xF0100010);
-        guiGraphics.renderItem(resource, tooltipX + 3, tooltipY + 3);
-        guiGraphics.drawString(
-                font, costText,
-                tooltipX + 23,
-                tooltipY + (tooltipHeight - font.lineHeight) / 2,
-                0xFFFFFFFF,
-                false);
+        if (!SpellConflictManager.hasConflict(currentSpell.getSpellResource(), learnedSpells)) {
+            guiGraphics.fill(
+                    tooltipX, tooltipY,
+                    tooltipX + tooltipWidth, tooltipY + tooltipHeight,
+                    0xF0100010);
+            guiGraphics.renderItem(resource, tooltipX + 3, tooltipY + 3);
+            guiGraphics.drawString(
+                    font, costText,
+                    tooltipX + 23,
+                    tooltipY + (tooltipHeight - font.lineHeight) / 2,
+                    0xFFFFFFFF,
+                    false);
+        } else {
+            guiGraphics.fill(
+                    tooltipX, tooltipY,
+                    tooltipX + tooltipWidthConflict, tooltipY + tooltipHeight,
+                    0xF0100010);
+            guiGraphics.drawString(
+                    font, conflictText,
+                    tooltipX + 3,
+                    tooltipY + (tooltipHeight - font.lineHeight) / 2,
+                    0xFFFFFFFF,
+                    false);
+        }
 
         guiGraphics.flush();
         guiGraphics.pose().popPose();
